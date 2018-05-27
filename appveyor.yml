@@ -23,7 +23,7 @@ init:
 - cmd: cinst wget
 - cmd: cd \
 - cmd: wget -np --no-parent -nH --cut-dirs 4 -nc "https://dcmods.unreliable.network/owncloud/data/PiKeyAr/files/Various/mod-manifest-gen.exe"
-- cmd: wget -r -np --no-parent -nH --cut-dirs 4 -nc --reject htm,html,tmp,dll "https://dcmods.unreliable.network/owncloud/data/PiKeyAr/files/DLC/"
+- cmd: wget -r -np --no-parent -nH --cut-dirs 4 -nc --reject htm,html,tmp,dll,manifest "https://dcmods.unreliable.network/owncloud/data/PiKeyAr/files/DLC/"
 - cmd: cd C:\projects\sadx-dreamcast-dlc
 
 before_build:
@@ -36,8 +36,8 @@ after_build:
 - cmd: copy C:\projects\sadx-dreamcast-dlc\Release\DLCs_Main.dll C:\DLC\DLCs_Main.dll
 - ps: $MyProcess = Start-Process "C:\mod-manifest-gen.exe" -Wait -PassThru -ArgumentList "C:\DLC"
 - cmd: cd C:\DLC
-- cmd: 7z a DLCs.7z *
-- cmd: move DLCs.7z C:\projects\sadx-dreamcast-dlc\Release\DLCs.7z
+- cmd: 7z a DLCs.zip *
+- cmd: move DLCs.zip C:\projects\sadx-dreamcast-dlc\Release\DLCs.zip
 
 artifacts:
-- path: Release\DLCs.7z
+- path: Release\DLCs.zip
