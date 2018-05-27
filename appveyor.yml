@@ -24,7 +24,7 @@ init:
 - cmd: cd \
 - cmd: wget -np --no-parent -nH --cut-dirs 4 -nc "https://dcmods.unreliable.network/owncloud/data/PiKeyAr/files/Various/mod-manifest-gen.exe"
 - cmd: wget -r -np --no-parent -nH --cut-dirs 4 -nc --reject htm,html,tmp,dll "https://dcmods.unreliable.network/owncloud/data/PiKeyAr/files/DLC/"
-- cmd: cd C:\projects\sadx-dreamcast
+- cmd: cd C:\projects\sadx-dreamcast-dlc
 
 before_build:
 - cmd: git submodule update --init --recursive
