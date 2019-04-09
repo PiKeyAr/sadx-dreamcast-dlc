@@ -20,7 +20,7 @@ cache:
 init:
 - ps: mkdir C:\DLC
 - ps: Set-Content -Value "Name=Dreamcast DLCs`r`nDescription=Downloadable events from the Dreamcast version now on PC! This mod uses the SEGA/Sonic Team voice code by SonicFreak94.`r`nAuthor=PkR`r`nVersion=$env:APPVEYOR_BUILD_VERSION`r`nDLLFile=DLCs_Main.dll`r`nUpdateUrl=http://dcmods.unreliable.network/owncloud/data/PiKeyAr/files/DLC`r`nChangelogUrl=http://dcmods.unreliable.network/owncloud/data/PiKeyAr/files/DLC/Dreamcast DLC.txt" -Path C:\DLC\mod.ini
-- cmd: cinst wget
+- cmd: choco install wget --version 1.20
 - cmd: cd \
 - cmd: wget -np --no-parent -nH --cut-dirs 4 -nc "https://dcmods.unreliable.network/owncloud/data/PiKeyAr/files/Various/mod-manifest-gen.exe"
 - cmd: wget -r -np --no-parent -nH --cut-dirs 4 -nc --reject htm,html,tmp,dll,manifest "https://dcmods.unreliable.network/owncloud/data/PiKeyAr/files/DLC/"
