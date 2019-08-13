@@ -178,7 +178,7 @@ void LoadLaunchPartyStuff_SS(void)
 	ObjectFunc(OF1, LaunchPosterLoad);
 	ObjectFunc(OF2, LaunchPosterColli_Load);
 	setdata_dlc.Distance = 612800.0f;
-	if (ObjectsLoaded == false)
+	if (!ObjectsLoaded)
 	{
 		//Act 5 (CurrentAct 4)
 		//Posters
@@ -535,22 +535,22 @@ void LoadLaunchPartyStuff_SS(void)
 		if (obj)
 		{
 			ent = obj->Data1;
-			if (ForceSADXLayout == false)
-			{
-				ent->Position.x = 205;
-				ent->Position.y = 72;
-				ent->Position.z = 1011;
-				ent->Rotation.x = 0;
-				ent->Rotation.y = 0x8000;
-				ent->Rotation.z = 0;
-			}
-			else
+			if (ForceSADXLayout)
 			{
 				ent->Position.x = 102;
 				ent->Position.y = 79;
 				ent->Position.z = 768;
 				ent->Rotation.x = 0;
 				ent->Rotation.y = 0x4000;
+				ent->Rotation.z = 0;
+			}
+			else
+			{
+				ent->Position.x = 205;
+				ent->Position.y = 72;
+				ent->Position.z = 1011;
+				ent->Rotation.x = 0;
+				ent->Rotation.y = 0x8000;
 				ent->Rotation.z = 0;
 			}
 			ent->CharIndex = 3;
@@ -622,7 +622,14 @@ void LoadLaunchPartyStuff_SS(void)
 			ent = obj->Data1;
 			ent->Position.x = 77;
 			ent->Position.y = 308;
-			if (ForceSADXLayout == false) ent->Position.z = 270; else ent->Position.z = 340;
+			if (ForceSADXLayout)
+			{
+				ent->Position.z = 340;
+			}
+			else
+			{
+				ent->Position.z = 270;
+			}
 			ent->Rotation.x = 0;
 			ent->Rotation.y = 0;
 			ent->Rotation.z = 0;
@@ -641,7 +648,14 @@ void LoadLaunchPartyStuff_SS(void)
 			ent = obj->Data1;
 			ent->Position.x = 458;
 			ent->Position.y = 308;
-			if (ForceSADXLayout == false) ent->Position.z = 263; else ent->Position.z = 333;
+			if (ForceSADXLayout)
+			{
+				ent->Position.z = 333;
+			}
+			else
+			{
+				ent->Position.z = 263;
+			}
 			ent->Rotation.x = 0;
 			ent->Rotation.y = 0;
 			ent->Rotation.z = 0;

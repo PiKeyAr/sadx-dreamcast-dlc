@@ -197,7 +197,7 @@ void __declspec(naked) PlaySegaSonicTeamVoice_asm()
 void StopVoicesButMaybeNot_Challenge()
 {
 	//004B793E
-	if (ChallengeAction == false) StopVoices();
+	if (!ChallengeAction) StopVoices();
 }
 
 void StopVoicesButMaybeNot_Christmas()
@@ -209,7 +209,7 @@ void StopVoicesButMaybeNot_Christmas()
 void DLCHook_LoadLevelIncrementAct(ObjectMaster *a1)
 {
 	sub_4570B0();
-	if (IsAdventureComplete(GetCharacterSelection()) || DisableDuringStory == false)
+	if (IsAdventureComplete(GetCharacterSelection()) || !DisableDuringStory)
 	{
 		if (CurrentDLC == 0)
 		{
@@ -241,8 +241,18 @@ void DLCHook_LoadLevelIncrementAct(ObjectMaster *a1)
 
 void DLCHook_StationSquare()
 {
+	if (LANDTABLESS[3]->Col[136].Radius <= 3949 && LANDTABLESS[3]->Col[136].Radius >= 3946)
+	{
+		ForceSADXLayout = true;
+		PrintDebug("SADX layout\n");
+	}
+	else
+	{
+		ForceSADXLayout = false;
+		PrintDebug("SA1 layout\n");
+	}
 	sub_62E980();
-	if (IsAdventureComplete(GetCharacterSelection()) || DisableDuringStory == false)
+	if (IsAdventureComplete(GetCharacterSelection()) || !DisableDuringStory)
 	{
 		if (CurrentDLC == 0)
 		{
@@ -303,7 +313,7 @@ void DLCHook_StationSquare()
 void DLCHook_MysticRuins()
 {
 	sub_52F240();
-	if (IsAdventureComplete(GetCharacterSelection()) || DisableDuringStory == false)
+	if (IsAdventureComplete(GetCharacterSelection()) || !DisableDuringStory)
 	{
 		//ATT challenges
 		if (CurrentDLC == 0)
@@ -371,7 +381,6 @@ extern "C"
 		MenuVoiceMode = config->getInt("General settings", "MenuVoiceThing", -1);
 		if (MenuVoiceMode == 9) MenuVoiceMode = rand() % 8 + 1;
 		DisableDuringStory = config->getBool("General settings", "DisableDuringStory", true);
-		ForceSADXLayout = config->getBool("General settings", "ForceSADXMode", false);
 		DLCMode = config->getString("General settings", "DLCMode", "Random");
 		CurrentDLC = config->getInt("General settings", "DLCSingle", 0);
 		SegaVoiceLanguage = config->getString("General settings", "SegaVoiceLanguage", "English");
@@ -416,16 +425,6 @@ extern "C"
 		}
 
 		delete config;
-
-		if (ForceSADXLayout == false)
-		{
-			ReplaceBIN("CAMSS00S", "CAMSS00S_DC");
-			ReplaceBIN("CAMSS01S", "CAMSS01S_DC");
-			ReplaceBIN("CAMSS02S", "CAMSS02S_DC");
-			ReplaceBIN("CAMSS03S", "CAMSS03S_DC");
-			ReplaceBIN("CAMSS04S", "CAMSS04S_DC");
-			ReplaceBIN("CAMSS05S", "CAMSS05S_DC");
-		}
 
 		// DLCs.
 		if (DLCMode == "Random")
@@ -490,6 +489,12 @@ extern "C"
 				ReplaceBIN("CAMSS03S", "CAMSS03S_F");
 				ReplaceBIN("CAMSS04S", "CAMSS04S_F");
 				ReplaceBIN("CAMSS05S", "CAMSS05S_F");
+				ReplaceBIN("CAMSS00S_DC", "CAMSS00S_F");
+				ReplaceBIN("CAMSS01S_DC", "CAMSS01S_F");
+				ReplaceBIN("CAMSS02S_DC", "CAMSS02S_F");
+				ReplaceBIN("CAMSS03S_DC", "CAMSS03S_F");
+				ReplaceBIN("CAMSS04S_DC", "CAMSS04S_F");
+				ReplaceBIN("CAMSS05S_DC", "CAMSS05S_F");
 				break;
 			case 4:
 				// Halloween
@@ -507,6 +512,12 @@ extern "C"
 				ReplaceBIN("CAMSS03S", "CAMSS03S_F");
 				ReplaceBIN("CAMSS04S", "CAMSS04S_F");
 				ReplaceBIN("CAMSS05S", "CAMSS05S_F");
+				ReplaceBIN("CAMSS00S_DC", "CAMSS00S_F");
+				ReplaceBIN("CAMSS01S_DC", "CAMSS01S_F");
+				ReplaceBIN("CAMSS02S_DC", "CAMSS02S_F");
+				ReplaceBIN("CAMSS03S_DC", "CAMSS03S_F");
+				ReplaceBIN("CAMSS04S_DC", "CAMSS04S_F");
+				ReplaceBIN("CAMSS05S_DC", "CAMSS05S_F");
 				WriteCall((void*)0x004B793E, StopVoicesButMaybeNot_Challenge);
 				helperFunctions.RegisterCommonObjectPVM(QuoTextures);
 				helperFunctions.RegisterCommonObjectPVM(TimerTextures);
@@ -569,13 +580,13 @@ extern "C"
 			if (MenuVoice != MenuVoiceMode) MenuVoice = MenuVoiceMode;
 		}
 		if (HintTimer > 0) HintTimer--;
-		if (IsAdventureComplete(GetCharacterSelection()) || DisableDuringStory == false)
+		if (IsAdventureComplete(GetCharacterSelection()) || !DisableDuringStory)
 		{
 			if (CurrentDLC == 0)
 			{
 				if (CurrentCharacter == 0)
 				{
-					if (GameState != 16)
+					if (!IsGamePaused())
 					{
 						if (GameState == 6 || CurrentLevel != 26 || (GameMode != GameModes_Adventure_Field && GameMode != GameModes_Mission))
 						{
@@ -589,7 +600,7 @@ extern "C"
 							ChallengeTimer = 0;
 							ObjectsLoaded = false;
 						}
-						if (CurrentLevel == 4 && GameState == 9 && HighwayGoal == false)
+						if (CurrentLevel == 4 && GameState == 9 && !HighwayGoal)
 						{
 							ChallengeAction = false;
 							ChallengeOver = false;
@@ -600,7 +611,7 @@ extern "C"
 				}
 				if (CurrentCharacter == 3)
 				{
-					if (GameState != 16)
+					if (!IsGamePaused())
 					{
 						if (GameMode != GameModes_Adventure_Field && GameMode != GameModes_Mission)
 						{
@@ -627,7 +638,7 @@ extern "C"
 				}
 				if (CurrentCharacter == 2)
 				{
-					if (GameState != 16)
+					if (!IsGamePaused())
 					{
 						if (CurrentLevel != 38 || GameState == 21)
 						{
@@ -649,7 +660,7 @@ extern "C"
 						{
 							ObjectsLoaded = false;
 						}
-						if (CurrentLevel == 33 && CollectedAll == 10 && ChallengeOver == false && Camera_Data1 != nullptr)
+						if (CurrentLevel == 33 && CollectedAll == 10 && !ChallengeOver && Camera_Data1 != nullptr)
 						{
 							DisplayHintText(ATT3_Message4, 360);
 							Gate1 = false;
@@ -691,8 +702,8 @@ extern "C"
 			if (CurrentDLC == 3)
 			{
 				HMODULE ADV00MODELS = GetModuleHandle(L"ADV00MODELS");
-				NJS_OBJECT **___ADV00SS01_OBJECTS = (NJS_OBJECT **)GetProcAddress(ADV00MODELS, "___ADV00SS01_OBJECTS");
-				if (GameState != 16)
+				NJS_OBJECT **___ADV00SS01_OBJECTS = (NJS_OBJECT * *)GetProcAddress(ADV00MODELS, "___ADV00SS01_OBJECTS");
+				if (!IsGamePaused())
 				{
 					if (GameState == 6)
 					{
@@ -706,7 +717,7 @@ extern "C"
 						ChallengeAction = false;
 						ChallengeTimer = 0;
 					}
-					if (ForceSADXLayout == true && ChallengeAction == true && ADV00MODELS != nullptr)
+					if (ForceSADXLayout && ChallengeAction)
 					{
 						COL_whatever.Flags = 0x80040000;
 						___ADV00SS01_OBJECTS[28]->pos[1] = 20;
@@ -741,7 +752,7 @@ extern "C"
 			}
 			if (CurrentDLC == 6)
 			{
-				if (GameState != 16)
+				if (!IsGamePaused())
 				{
 					if (GameMode != GameModes_Adventure_Field && GameMode != GameModes_Mission)
 					{
@@ -775,7 +786,7 @@ extern "C"
 			}
 			if (CurrentDLC == 7)
 			{
-				if (GameState != 16)
+				if (!IsGamePaused())
 				{
 					if (GameState == 6)
 					{
@@ -785,7 +796,7 @@ extern "C"
 					{
 						ObjectsLoaded = false;
 					}
-					if (ChallengeAction == true && (CurrentLevel != 1 || CurrentAct != 0))
+					if (ChallengeAction && (CurrentLevel != 1 || CurrentAct != 0))
 					{
 						ChallengeTimer = 0;
 						Collected1 = false;
@@ -806,7 +817,7 @@ extern "C"
 			}
 			if (CurrentDLC == 9)
 			{
-				if (GameState != 16)
+				if (!IsGamePaused())
 				{
 					if (CurrentLevel != 26)
 					{
@@ -838,13 +849,13 @@ extern "C"
 
 	__declspec(dllexport) void __cdecl OnInput()
 	{
-		if (IsAdventureComplete(GetCharacterSelection()) || DisableDuringStory == false)
+		if (IsAdventureComplete(GetCharacterSelection()) || !DisableDuringStory)
 		{
 			if (CurrentDLC == 0)
 			{
 				if (CurrentCharacter == 3 && GameState == 16)
 				{
-					if (ChallengeAction == true && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
+					if (ChallengeAction && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
 					{
 						CollectedAll = 0;
 						Treasure1 = false;
@@ -858,7 +869,7 @@ extern "C"
 				}
 				if (CurrentCharacter == 2 && GameState == 16)
 				{
-					if (ChallengeAction == true && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
+					if (ChallengeAction && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
 					{
 						ChallengeAction = false;
 						ChallengeOver = false;
@@ -878,7 +889,7 @@ extern "C"
 			}
 			if (CurrentDLC == 3 && GameState == 16)
 			{
-				if (ChallengeAction == true && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
+				if (ChallengeAction && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
 				{
 					CollectedAll = 0;
 					Collected1 = false;
@@ -892,7 +903,7 @@ extern "C"
 			}
 			if (CurrentDLC == 6 && GameState == 16)
 			{
-				if (ChallengeAction == true && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
+				if (ChallengeAction && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
 				{
 					CollectedAll = 0;
 					CollectedSS1 = false;

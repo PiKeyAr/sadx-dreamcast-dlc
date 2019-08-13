@@ -11,7 +11,7 @@ static void FamitsuPoster_Display(ObjectMaster *a1)
 	Angle v3;
 	Angle v4;
 	v1 = a1->Data1;
-	if (!DroppedFrames && GameState != 16)
+	if (!DroppedFrames && !IsGamePaused())
 	{
 		njSetTexture(&texlist_famitsu);
 		njPushMatrix(0);
@@ -21,7 +21,7 @@ static void FamitsuPoster_Display(ObjectMaster *a1)
 		v4 = v1->Rotation.z;
 		njRotateXYZ(0, v2, v3, v4);
 		njScale(0, v1->Scale.z, v1->Scale.y, v1->Scale.x);
-		if ((Collected1 == true && v1->CharIndex == 4) || (Collected2 == true && v1->CharIndex == 5) || (Collected3 == true && v1->CharIndex == 6) || (Collected4 == true && v1->CharIndex == 7) || (Collected5 == true && v1->CharIndex == 8))
+		if ((Collected1 && v1->CharIndex == 4) || (Collected2 && v1->CharIndex == 5) || (Collected3 && v1->CharIndex == 6) || (Collected4 && v1->CharIndex == 7) || (Collected5 && v1->CharIndex == 8))
 		{
 			matlist_00116FA0X[0].attrflags |= NJD_FLAG_USE_ALPHA;
 			matlist_00116FA0X[0].diffuse.argb.a = 255 - v1->InvulnerableTime;
@@ -39,7 +39,7 @@ static void FamitsuPoster_Main(ObjectMaster *a1)
 	v1 = a1->Data1;
 	if (v1->NextAction == CurrentAct)
 	{
-		if (ChallengeAction == false)
+		if (!ChallengeAction)
 		{
 			Collected1 = false;
 			Collected2 = false;
@@ -49,7 +49,7 @@ static void FamitsuPoster_Main(ObjectMaster *a1)
 		}
 		else
 		{
-			if ((Collected1 == false && v1->CharIndex == 4) || (Collected2 == false && v1->CharIndex == 5) || (Collected3 == false && v1->CharIndex == 6) || (Collected4 == false && v1->CharIndex == 7) || (Collected5 == false && v1->CharIndex == 8))
+			if ((!Collected1 && v1->CharIndex == 4) || (!Collected2 && v1->CharIndex == 5) || (!Collected3 && v1->CharIndex == 6) || (!Collected4 && v1->CharIndex == 7) || (!Collected5 && v1->CharIndex == 8))
 			{
 				v1->InvulnerableTime = 0;
 				v1->Scale.x = 1.0f;
@@ -61,40 +61,40 @@ static void FamitsuPoster_Main(ObjectMaster *a1)
 					{
 						Collected1 = true;
 						PlaySound(28, 0, 0, 0);
-						if (Collected1 == true && Collected2 == true && Collected3 == true && Collected4 == true && Collected5 == true) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage5, 180);
+						if (Collected1 && Collected2 && Collected3 && Collected4 && Collected5) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage5, 180);
 						HintTimer = 60;
 					}
 					if (v1->CharIndex == 5)
 					{
 						Collected2 = true;
 						PlaySound(28, 0, 0, 0);
-						if (Collected1 == true && Collected2 == true && Collected3 == true && Collected4 == true && Collected5 == true) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage6, 180);
+						if (Collected1 && Collected2 && Collected3 && Collected4 && Collected5) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage6, 180);
 						HintTimer = 60;
 					}
 					if (v1->CharIndex == 6)
 					{
 						Collected3 = true;
 						PlaySound(28, 0, 0, 0);
-						if (Collected1 == true && Collected2 == true && Collected3 == true && Collected4 == true && Collected5 == true) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage7, 180);
+						if (Collected1 && Collected2 && Collected3 && Collected4 && Collected5) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage7, 180);
 						HintTimer = 60;
 					}
 					if (v1->CharIndex == 7)
 					{
 						Collected4 = true;
 						PlaySound(28, 0, 0, 0);
-						if (Collected1 == true && Collected2 == true && Collected3 == true && Collected4 == true && Collected5 == true) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage8, 180);
+						if (Collected1 && Collected2 && Collected3 && Collected4 && Collected5) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage8, 180);
 						HintTimer = 60;
 					}
 					if (v1->CharIndex == 8)
 					{
 						Collected5 = true;
 						PlaySound(28, 0, 0, 0);
-						if (Collected1 == true && Collected2 == true && Collected3 == true && Collected4 == true && Collected5 == true) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage9, 180);
+						if (Collected1 && Collected2 && Collected3 && Collected4 && Collected5) DisplayHintText(FamitsuMessage1, 180); else DisplayHintText(FamitsuMessage9, 180);
 						HintTimer = 60;
 					}
 				}
 			}
-			if ((Collected1 == true && v1->CharIndex == 4) || (Collected2 == true && v1->CharIndex == 5) || (Collected3 == true && v1->CharIndex == 6) || (Collected4 == true && v1->CharIndex == 7) || (Collected5 == true && v1->CharIndex == 8))
+			if ((Collected1 && v1->CharIndex == 4) || (Collected2 && v1->CharIndex == 5) || (Collected3 && v1->CharIndex == 6) || (Collected4 && v1->CharIndex == 7) || (Collected5 && v1->CharIndex == 8))
 			{
 				if (v1->InvulnerableTime < 255) v1->InvulnerableTime = v1->InvulnerableTime + 8;
 				if (v1->InvulnerableTime > 255) v1->InvulnerableTime = 255;
@@ -159,7 +159,7 @@ static void FamitsuBalloons_Main(ObjectMaster *a1)
 		v1->Rotation.y = v3;
 		if (v1->CharIndex == 9)
 		{
-			if (ChallengeAction == true)
+			if (ChallengeAction)
 			{
 				matlist_balloon[0].attrflags |= NJD_FLAG_USE_ALPHA;
 				if (matlist_balloon[0].diffuse.argb.a > 8) matlist_balloon[0].diffuse.argb.a = matlist_balloon[0].diffuse.argb.a - 8;
@@ -171,7 +171,7 @@ static void FamitsuBalloons_Main(ObjectMaster *a1)
 					v1->Scale.z = v1->Scale.z*0.95f;
 				}
 			}
-			if (ChallengeAction == false)
+			if (!ChallengeAction)
 			{
 				matlist_balloon[0].attrflags &= ~NJD_FLAG_USE_ALPHA;
 				matlist_balloon[0].diffuse.argb.a = 255;
@@ -189,7 +189,7 @@ static void FamitsuBalloons_Main(ObjectMaster *a1)
 					}
 				}
 			}
-			if (ChallengeAction == false && IsPlayerInsideSphere(&v1->Position, 15))
+			if (!ChallengeAction && IsPlayerInsideSphere(&v1->Position, 15))
 			{
 				if (HintTimer <= 0)
 				{
@@ -208,7 +208,7 @@ static void FamitsuBalloons_Main(ObjectMaster *a1)
 		}
 		else
 		{
-			if (ChallengeAction == false)
+			if (!ChallengeAction)
 			{
 				matlist_balloon_2[0].attrflags |= NJD_FLAG_USE_ALPHA;
 				if (matlist_balloon_2[0].diffuse.argb.a > 8) matlist_balloon_2[0].diffuse.argb.a = matlist_balloon_2[0].diffuse.argb.a - 8;
@@ -220,7 +220,7 @@ static void FamitsuBalloons_Main(ObjectMaster *a1)
 					v1->Scale.z = v1->Scale.z*0.95f;
 				}
 			}
-			if (ChallengeAction == true)
+			if (ChallengeAction)
 			{
 				matlist_balloon_2[0].attrflags &= ~NJD_FLAG_USE_ALPHA;
 				matlist_balloon_2[0].diffuse.argb.a = 255;
@@ -237,7 +237,7 @@ static void FamitsuBalloons_Main(ObjectMaster *a1)
 					}
 				}
 			}
-			if (ChallengeAction == true && IsPlayerInsideSphere(&v1->Position, 15))
+			if (ChallengeAction && IsPlayerInsideSphere(&v1->Position, 15))
 			{
 				if (CollectedAll >= 5)
 				{
@@ -351,7 +351,7 @@ static void TimerFamitsu_Main(ObjectMaster *a1)
 {
 	if (((ChallengeTimer / 3600) % 60) / 10 < 1)
 	{
-		if (ChallengeAction == true)
+		if (ChallengeAction)
 		{
 			CollectedAll = Collected1 + Collected2 + Collected3 + Collected4 + Collected5;
 			ChallengeTimer++;
@@ -383,7 +383,7 @@ void Famitsu_LoadStuff(void)
 	setdata_dlc.Distance = 612800.0f;
 	if (GameMode == GameModes_Adventure_Field || GameMode == GameModes_Mission)
 	{
-		if (ObjectsLoaded == false)
+		if (!ObjectsLoaded)
 		{
 			//Timer
 			obj = LoadObject((LoadObj)2, 3, OF2);
@@ -409,7 +409,7 @@ void Famitsu_LoadStuff(void)
 				ent->Rotation.x = 0;
 				ent->Rotation.y = 0;
 				ent->Rotation.z = 0;
-				if (ChallengeAction == false)
+				if (!ChallengeAction)
 				{
 					ent->Scale.x = 1.5f;
 					ent->Scale.y = 1.5f;
@@ -437,7 +437,7 @@ void Famitsu_LoadStuff(void)
 				ent->Rotation.y = 0;
 				ent->CharIndex = 1;
 				ent->Rotation.z = 0;
-				if (ChallengeAction == true)
+				if (ChallengeAction)
 				{
 					ent->Scale.x = 1.5f;
 					ent->Scale.y = 1.5f;

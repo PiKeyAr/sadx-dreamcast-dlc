@@ -33,11 +33,11 @@ build:
   project: DLCs_Main.sln
   
 after_build:
-- cmd: copy C:\projects\sadx-dreamcast-dlc\Release\DLCs_Main.dll C:\DLC\DLCs_Main.dll
+- cmd: copy C:\projects\sadx-dreamcast-dlc\bin\DLCs_Main.dll C:\DLC\DLCs_Main.dll
 - ps: $MyProcess = Start-Process "C:\mod-manifest-gen.exe" -Wait -PassThru -ArgumentList "C:\DLC"
 - cmd: cd C:\DLC
 - cmd: 7z a DLCs.7z *
-- cmd: move DLCs.7z C:\projects\sadx-dreamcast-dlc\Release\DLCs.7z
+- cmd: move DLCs.7z C:\projects\sadx-dreamcast-dlc\bin\DLCs.7z
 
 artifacts:
-- path: Release\DLCs.7z
+- path: bin\DLCs.7z

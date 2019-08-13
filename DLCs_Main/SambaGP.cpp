@@ -249,7 +249,7 @@ void LoadSambaGateEntry(void)
 	ObjectFunc(OF1, LoadSambaGate); // Samba Gate
 	ObjectFunc(OF2, SambaPoster_Load); // Samba Poster
 	setdata_dlc.Distance = 612800.0f;
-	if ((GameMode == GameModes_Adventure_Field || GameMode == GameModes_Mission) && ObjectsLoaded == false)
+	if ((GameMode == GameModes_Adventure_Field || GameMode == GameModes_Mission) && !ObjectsLoaded)
 	{
 		//Act 1
 		obj = LoadObject((LoadObj)2, 3, OF2);

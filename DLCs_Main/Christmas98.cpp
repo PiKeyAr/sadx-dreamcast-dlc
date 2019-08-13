@@ -119,7 +119,7 @@ void Christmas98_LoadStuff(void)
 	EntityData1 *ent;
 	ObjectFunc(OF0, Christmas98_Load);
 	setdata_dlc.Distance = 612800.0f;
-	if (ObjectsLoaded == false)
+	if (!ObjectsLoaded)
 	{
 		obj = LoadObject((LoadObj)2, 3, OF0);
 		obj->SETData.SETData = &setdata_dlc;

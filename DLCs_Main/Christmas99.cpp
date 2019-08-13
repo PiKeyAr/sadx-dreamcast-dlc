@@ -112,7 +112,7 @@ void Christmas99_LoadStuff()
 	EntityData1 *ent;
 	ObjectFunc(OF0, Christmas99_Load);
 	setdata_dlc.Distance = 612800.0f;
-	if ((GameMode == GameModes_Adventure_Field || GameMode == GameModes_Mission) && ObjectsLoaded == false)
+	if ((GameMode == GameModes_Adventure_Field || GameMode == GameModes_Mission) && !ObjectsLoaded)
 	{
 		//This damn tree
 		if (CurrentCharacter != 0 || GetEventFlag(EventFlags_Sonic_SpeedHighwayClear))
@@ -123,7 +123,14 @@ void Christmas99_LoadStuff()
 			{
 				ent = obj->Data1;
 				ent->Position.x = -23;
-				if (ForceSADXLayout == false) ent->Position.y = 2; else ent->Position.y = -1;
+				if (ForceSADXLayout)
+				{
+					ent->Position.y = -1;
+				}
+				else
+				{
+					ent->Position.y = 2;
+				}
 				ent->Position.z = 1673;
 				ent->Index = 68;
 				ent->Rotation.x = 0;
@@ -181,15 +188,15 @@ void Christmas99_LoadStuff()
 		{
 			ent = obj->Data1;
 			ent->Position.x = 265;
-			if (!ForceSADXLayout)
-			{
-				ent->Position.y = 1;
-				ent->Position.z = 668;
-			}
-			else
+			if (ForceSADXLayout)
 			{
 				ent->Position.y = -1;
 				ent->Position.z = 712;
+			}
+			else
+			{
+				ent->Position.y = 1;
+				ent->Position.z = 668;
 			}
 			ent->Index = 70;
 			ent->Rotation.x = 0;

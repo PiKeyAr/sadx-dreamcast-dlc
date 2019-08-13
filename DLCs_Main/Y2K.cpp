@@ -152,7 +152,7 @@ void LoadY2KRings_StationSquare(void)
 	ObjectFunc(OF1, Y2KPoster_Load);
 	setdata_dlc.Distance = 612800.0f;
 	//Station Square
-	if ((GameMode == GameModes_Adventure_Field || GameMode == GameModes_Mission) && ObjectsLoaded == false)
+	if ((GameMode == GameModes_Adventure_Field || GameMode == GameModes_Mission) && !ObjectsLoaded)
 	{
 		obj = LoadObject((LoadObj)2, 3, OF0);
 		obj->SETData.SETData = &setdata_dlc;

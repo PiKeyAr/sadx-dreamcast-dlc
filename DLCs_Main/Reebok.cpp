@@ -133,7 +133,7 @@ static void ReebokPoster_Main(ObjectMaster *a1)
 					sub_412D80(LevelIDs_EmeraldCoast, 0);
 					HintTimer = 60;
 				}
-				if (ChallengeAction == true && v1->CharIndex == 4)
+				if (ChallengeAction && v1->CharIndex == 4)
 				{
 					if (CollectedAll >= 5)
 					{
@@ -241,7 +241,7 @@ static void Shoes_Main(ObjectMaster *a1)
 	Angle v4;
 	NJS_OBJECT *v5; // eax@2
 	v1 = a1->Data1;
-	if (v1->NextAction == CurrentAct && ChallengeOver == false && ChallengeAction == true)
+	if (v1->NextAction == CurrentAct && !ChallengeOver && ChallengeAction)
 	{
 		if (v1->Action != 1) v1->InvulnerableTime = 0;
 		if (v1->Action == 1)
@@ -275,7 +275,7 @@ static void Shoes_Main(ObjectMaster *a1)
 		}
 		if (IsPlayerInsideSphere(&v1->Position, 15))
 		{
-			if ((v1->CharID == 0 && Collected1 == false) || (v1->CharID == 1 && Collected2 == false) || (v1->CharID == 2 && Collected3 == false) || (v1->CharID == 3 && Collected4 == false) || (v1->CharID == 4 && Collected5 == false))
+			if ((v1->CharID == 0 && !Collected1) || (v1->CharID == 1 && !Collected2) || (v1->CharID == 2 && !Collected3) || (v1->CharID == 3 && !Collected4) || (v1->CharID == 4 && !Collected5))
 			{
 				if (v1->CharID == 0) Collected1 = true;
 				if (v1->CharID == 1) Collected2 = true;
@@ -287,7 +287,7 @@ static void Shoes_Main(ObjectMaster *a1)
 				if (HintTimer <= 0)
 				{
 					sub_425800(MusicIDs_bossevnt);
-					if (Collected1 == true && Collected2 == true && Collected3 == true && Collected4 == true && Collected5 == true) DisplayHintText(ReebokMessage5, 180);
+					if (Collected1 && Collected2 && Collected3 && Collected4 && Collected5) DisplayHintText(ReebokMessage5, 180);
 					else DisplayHintText(ReebokMessage4, 180);
 					HintTimer = 60;
 				}
@@ -365,7 +365,7 @@ static void ReebokTimer_Main(ObjectMaster *a1)
 {
 	if (((ChallengeTimer / 3600) % 60) / 10 < 1)
 	{
-		if (ChallengeAction == true)
+		if (ChallengeAction)
 		{
 			CollectedAll = Collected1 + Collected2 + Collected3 + Collected4 + Collected5;
 			ChallengeTimer++;
@@ -430,7 +430,7 @@ void LoadReebokStuffInEmeraldCoast(void)
 		ent->Rotation.z = 0;
 		ent->CharIndex = 5;
 		ent->CharID = 0;
-		if (Collected1 == false)
+		if (!Collected1)
 		{
 			ent->Action = 0;
 			ent->Scale.x = 1.0f;
@@ -459,7 +459,7 @@ void LoadReebokStuffInEmeraldCoast(void)
 		ent->Rotation.y = 0x27D2;
 		ent->Rotation.z = 0;
 		ent->CharIndex = 5;
-		if (Collected2 == false)
+		if (!Collected2)
 		{
 			ent->Action = 0;
 			ent->Scale.x = 1.0f;
@@ -488,7 +488,7 @@ void LoadReebokStuffInEmeraldCoast(void)
 		ent->Rotation.z = 0;
 		ent->CharIndex = 5;
 		ent->CharID = 2;
-		if (Collected3 == false)
+		if (!Collected3)
 		{
 			ent->Action = 0;
 			ent->Scale.x = 1.0f;
@@ -517,7 +517,7 @@ void LoadReebokStuffInEmeraldCoast(void)
 		ent->Rotation.z = 0;
 		ent->CharID = 3;
 		ent->CharIndex = 5;
-		if (Collected4 == false)
+		if (!Collected4)
 		{
 			ent->Action = 0;
 			ent->Scale.x = 1.0f;
@@ -546,7 +546,7 @@ void LoadReebokStuffInEmeraldCoast(void)
 		ent->Rotation.z = 0;
 		ent->CharIndex = 5;
 		ent->CharID = 4;
-		if (Collected5 == false)
+		if (!Collected5)
 		{
 			ent->Action = 0;
 			ent->Scale.x = 1.0f;
@@ -1426,7 +1426,7 @@ void LoadReebokStuffInStationSquare(void)
 	setdata_dlc.Distance = 612800.0f;
 	if ((GameMode == GameModes_Adventure_Field || GameMode == GameModes_Mission) && CurrentCharacter == 0)
 	{
-		if (ObjectsLoaded == false)
+		if (!ObjectsLoaded)
 		{
 			//ReebokPoster 1
 			obj = LoadObject((LoadObj)2, 3, OF1);
