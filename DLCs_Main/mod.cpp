@@ -244,12 +244,12 @@ void DLCHook_StationSquare()
 	if (LANDTABLESS[3]->Col[136].Radius <= 3949 && LANDTABLESS[3]->Col[136].Radius >= 3946)
 	{
 		ForceSADXLayout = true;
-		PrintDebug("SADX layout\n");
+		//PrintDebug("SADX layout\n");
 	}
 	else
 	{
 		ForceSADXLayout = false;
-		PrintDebug("SA1 layout\n");
+		//PrintDebug("SA1 layout\n");
 	}
 	sub_62E980();
 	if (IsAdventureComplete(GetCharacterSelection()) || !DisableDuringStory)
@@ -454,7 +454,7 @@ extern "C"
 		WriteCall((void*)0x0052FB82, DLCHook_MysticRuins);
 
 		// DLC-specific handling.
-		PrintDebug("Current DLC ID: %02X\n", CurrentDLC);
+		//PrintDebug("Current DLC ID: %02X\n", CurrentDLC);
 		switch (CurrentDLC)
 		{
 			case 0:
