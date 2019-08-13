@@ -108,7 +108,7 @@ void Christmas98_Load(ObjectMaster *a1)
 	v2->pos[0] = v1->Position.x;
 	v2->pos[1] = v1->Position.y;
 	v2->pos[2] = v1->Position.z;
-	a1->DeleteSub = DeleteObject_DynamicCOL;
+	a1->DeleteSub = DynamicCOL_DeleteObject;
 	a1->MainSub = (void(__cdecl *)(ObjectMaster *))Christmas98_Main;
 	a1->DisplaySub = (void(__cdecl *)(ObjectMaster *))Christmas98_Display;
 }

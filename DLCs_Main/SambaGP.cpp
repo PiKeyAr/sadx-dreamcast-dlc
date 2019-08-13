@@ -180,7 +180,7 @@ static void LoadSambaGate(ObjectMaster *a1)
 	v4->scl[0] = 1.0f;
 	v4->scl[1] = 1.0f;
 	v4->scl[2] = 1.0f;
-	a1->DeleteSub = DeleteObject_DynamicCOL;
+	a1->DeleteSub = DynamicCOL_DeleteObject;
 	a1->MainSub = (void(__cdecl *)(ObjectMaster *))SambaGate_Main;
 	a1->DisplaySub = (void(__cdecl *)(ObjectMaster *))SambaGate_Display;
 }
@@ -237,7 +237,7 @@ static void SambaPoster_Main(ObjectMaster *a1)
 
 static void SambaPoster_Load(ObjectMaster *a1)
 {
-	a1->DeleteSub = DeleteObject_DynamicCOL;
+	a1->DeleteSub = DynamicCOL_DeleteObject;
 	a1->MainSub = (void(__cdecl *)(ObjectMaster *))SambaPoster_Main;
 	a1->DisplaySub = (void(__cdecl *)(ObjectMaster *))SambaPoster_Display;
 }

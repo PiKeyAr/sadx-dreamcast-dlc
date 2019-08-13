@@ -65,7 +65,7 @@ static void Y2KPoster_Main(ObjectMaster *a1)
 
 static void Y2KPoster_Load(ObjectMaster *a1)
 {
-	a1->DeleteSub = DeleteObject_DynamicCOL;
+	a1->DeleteSub = DynamicCOL_DeleteObject;
 	a1->MainSub = (void(__cdecl *)(ObjectMaster *))Y2KPoster_Main;
 	a1->DisplaySub = (void(__cdecl *)(ObjectMaster *))Y2KPoster_Display;
 }
@@ -141,7 +141,7 @@ static void Y2KRing_Load(ObjectMaster *a1)
 	else v5 = nullptr;
 	a1->MainSub = (void(__cdecl *)(ObjectMaster *))Y2KRing_Main;
 	a1->DisplaySub = (void(__cdecl *)(ObjectMaster *))Y2KRing_Display;
-	a1->DeleteSub = DeleteObject_DynamicCOL;
+	a1->DeleteSub = DynamicCOL_DeleteObject;
 }
 
 void LoadY2KRings_StationSquare(void)

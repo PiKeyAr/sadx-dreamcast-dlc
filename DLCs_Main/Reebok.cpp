@@ -178,7 +178,7 @@ static void ReebokPoster_Load(ObjectMaster *a1)
 		v5->scl[0] = 1.0f;
 		v5->scl[1] = 1.5f;
 		v5->scl[2] = 2.5f;
-		a1->DeleteSub = DeleteObject_DynamicCOL;
+		a1->DeleteSub = DynamicCOL_DeleteObject;
 	}
 	else
 	{

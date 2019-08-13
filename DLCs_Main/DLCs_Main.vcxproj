@@ -79,7 +79,7 @@
     <ClCompile Include="Christmas98.cpp" />
     <ClCompile Include="Christmas99.cpp" />
     <ClCompile Include="Balloon.cpp" />
-    <ClCompile Include="DLCs.cpp" />
+    <ClCompile Include="mod.cpp" />
     <ClCompile Include="Famitsu.cpp" />
     <ClCompile Include="Halloween.cpp" />
     <ClCompile Include="LaunchParty.cpp" />

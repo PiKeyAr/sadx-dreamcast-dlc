@@ -79,7 +79,7 @@ void Halloween_Load(ObjectMaster *a1)
 		v2->pos[2] = v1->Position.z;
 	}
 	else v2 = nullptr;
-	a1->DeleteSub = DeleteObject_DynamicCOL;
+	a1->DeleteSub = DynamicCOL_DeleteObject;
 	a1->MainSub = (void(__cdecl *)(ObjectMaster *))Halloween_Main;
 	a1->DisplaySub = (void(__cdecl *)(ObjectMaster *))Halloween_Display;
 }

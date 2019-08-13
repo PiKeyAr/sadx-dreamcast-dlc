@@ -76,7 +76,7 @@ static void LaunchPosterMain(ObjectMaster *a1)
 
 static void LaunchPosterLoad(ObjectMaster *a1)
 {
-	a1->DeleteSub = DeleteObject_DynamicCOL;
+	a1->DeleteSub = DynamicCOL_DeleteObject;
 	a1->MainSub = (void(__cdecl *)(ObjectMaster *))LaunchPosterMain;
 	a1->DisplaySub = (void(__cdecl *)(ObjectMaster *))LaunchPosterDisplay;
 }
@@ -95,7 +95,7 @@ static void LaunchPosterColli_Load(ObjectMaster *a1)
 		v5->scl[0] = 1.0f;
 		v5->scl[1] = 1.0f;
 		v5->scl[2] = 1.0f;
-		a1->DeleteSub = DeleteObject_DynamicCOL;
+		a1->DeleteSub = DynamicCOL_DeleteObject;
 		a1->MainSub = (void(__cdecl *)(ObjectMaster *))nullsub;
 		a1->DisplaySub = (void(__cdecl *)(ObjectMaster *))nullsub;
 	}
@@ -166,7 +166,7 @@ static void PartyBalloons_Load(ObjectMaster *a1)
 {
 	a1->MainSub = (void(__cdecl *)(ObjectMaster *))PartyBalloons_Main;
 	a1->DisplaySub = (void(__cdecl *)(ObjectMaster *))PartyBalloons_Display;
-	a1->DeleteSub = DeleteObject_DynamicCOL;
+	a1->DeleteSub = DynamicCOL_DeleteObject;
 }
 
 void LoadLaunchPartyStuff_SS(void)
