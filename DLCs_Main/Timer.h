@@ -1,6 +1,15 @@
 #pragma once
 #include <SADXModLoader.h>
 
+void DrawDebugTimer();
+
+extern bool HDTimer;
+extern int DebugTimer_Current;
+extern int DebugTimer_Total;
+extern int DebugTimer_Minutes;
+extern int DebugTimer_Seconds;
+extern int DebugTimer_Miliseconds;
+
 extern NJS_TEXANIM HedgehogCountTexanim;
 extern NJS_SPRITE HedgehogCount;
 

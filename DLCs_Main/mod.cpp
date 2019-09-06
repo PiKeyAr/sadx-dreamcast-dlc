@@ -45,6 +45,15 @@ std::string SegaVoiceLanguage = "English";
 
 int MenuVoiceMode;
 
+// Debug timer stuff.
+bool HDTimer = false;
+char DebugCharacterRed = 0;
+int DebugTimer_Current = 0;
+int DebugTimer_Total = 0;
+int DebugTimer_Minutes = 0;
+int DebugTimer_Seconds = 0;
+int DebugTimer_Miliseconds = 0;
+
 // Twinkle Circuit track IDs.
 int SonicTrack = 2;
 int TailsTrack = 1;
@@ -329,11 +338,70 @@ void DLCHook_MysticRuins()
 	}
 }
 
+DataPointer(uint8_t, TextureFilterSettingForPoint_1, 0x0078B7C4);
+DataPointer(uint8_t, TextureFilterSettingForPoint_2, 0x0078B7D8);
+DataPointer(uint8_t, TextureFilterSettingForPoint_3, 0x0078B7EC);
+
+void DrawDebugText_NoFiltering(NJS_POINT2 *points, float scale)
+{
+	uint8_t Backup1 = TextureFilterSettingForPoint_1;
+	uint8_t Backup2 = TextureFilterSettingForPoint_2;
+	uint8_t Backup3 = TextureFilterSettingForPoint_3;
+	WriteData((uint8_t*)0x0078B7C4, (uint8_t)0x01);
+	WriteData((uint8_t*)0x0078B7D8, (uint8_t)0x01);
+	WriteData((uint8_t*)0x0078B7EC, (uint8_t)0x01);
+	Direct3D_TextureFilterPoint();
+	DrawRectPoints(points, scale);
+	WriteData((uint8_t*)0x0078B7C4, Backup1);
+	WriteData((uint8_t*)0x0078B7D8, Backup2);
+	WriteData((uint8_t*)0x0078B7EC, Backup3);
+}
+
+void DrawDebugTimer()
+{
+	//Character grid is 40x30 for 4:3 resolutions, each character is 16x16 for 640x480 at scale 16
+	float HorizontalResolution_float = (float)HorizontalResolution;
+	float VerticalResolution_float = (float)VerticalResolution;
+	int FontScale = int(HorizontalResolution_float / 640.0f);
+	int RightColumn = int(floor(HorizontalResolution_float/(16.0f*FontScale)));
+	int BottomLine = int(floor(VerticalResolution_float/(16.0f*FontScale)));
+	if (!IsGamePaused() && ((FramerateSetting < 2 && FrameCounter % 4 == 0) || FramerateSetting >= 2 && FrameCounter % 2 == 0)) DebugCharacterRed++;
+	if (DebugCharacterRed > 7) DebugCharacterRed = 0;
+	SetDebugFontSize(FontScale*16);
+	SetDebugFontColor(0xFFF0F049);
+	DisplayDebugString(NJM_LOCATION(RightColumn-9, BottomLine-7), "[TARGET]");
+	SetDebugFontColor(0xFF5AC3F0);
+	PrintDebugNumber(NJM_LOCATION(RightColumn-6, BottomLine-6), DebugTimer_Current, 2); //Current number of targets
+	PrintDebugNumber(NJM_LOCATION(RightColumn-3, BottomLine-6), DebugTimer_Total, 2); //Total number of targets
+	SetDebugFontColor(0xFF4AEE66);
+	DisplayDebugString(NJM_LOCATION(RightColumn-4, BottomLine-6), "/");
+	if (DebugCharacterRed == 0) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	DisplayDebugString(NJM_LOCATION(RightColumn-9, BottomLine-5), "-");
+	if (DebugCharacterRed == 2) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	DisplayDebugString(NJM_LOCATION(RightColumn-7, BottomLine-5), "T");
+	if (DebugCharacterRed == 3) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	DisplayDebugString(NJM_LOCATION(RightColumn-6, BottomLine-5), "I");
+	if (DebugCharacterRed == 4) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	DisplayDebugString(NJM_LOCATION(RightColumn-5, BottomLine-5), "M");
+	if (DebugCharacterRed == 5) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	DisplayDebugString(NJM_LOCATION(RightColumn-4, BottomLine-5), "E");
+	if (DebugCharacterRed == 7) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	DisplayDebugString(NJM_LOCATION(RightColumn-2, BottomLine-5), "-");
+	SetDebugFontColor(0xFF87E1EF);
+	DisplayDebugString(NJM_LOCATION(RightColumn-7, BottomLine-4), ":");
+	DisplayDebugString(NJM_LOCATION(RightColumn-4, BottomLine-4), ":");
+	SetDebugFontColor(0xFFB3DFED);
+	PrintDebugNumber(NJM_LOCATION(RightColumn-9, BottomLine-4), DebugTimer_Minutes, 2); //Timer minutes
+	PrintDebugNumber(NJM_LOCATION(RightColumn-6, BottomLine-4), DebugTimer_Seconds, 2); //Timer seconds
+	PrintDebugNumber(NJM_LOCATION(RightColumn-3, BottomLine-4), DebugTimer_Miliseconds, 2); //Timer miliseconds
+}
+
 extern "C"
 {
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
-	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions& helperFunctions)
+	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions &helperFunctions)
 	{
+		WriteCall((void*)0x00793BCC, DrawDebugText_NoFiltering);
 		WriteJump((void*)0x0042CCC7, PlaySegaSonicTeamVoice_asm);
 		WriteJump((void*)0x0042CD2F, PlaySegaSonicTeamVoice_asm);
 		GetLocalTime(&CurrentTime);
@@ -379,6 +447,7 @@ extern "C"
 		//Config stuff
 		const IniFile *config = new IniFile(std::string(path) + "\\config.ini");
 		MenuVoiceMode = config->getInt("General settings", "MenuVoiceThing", -1);
+		HDTimer = config->getBool("General settings", "HDTimer", false);
 		if (MenuVoiceMode == 9) MenuVoiceMode = rand() % 8 + 1;
 		DisableDuringStory = config->getBool("General settings", "DisableDuringStory", true);
 		DLCMode = config->getString("General settings", "DLCMode", "Random");

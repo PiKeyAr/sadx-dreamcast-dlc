@@ -295,66 +295,80 @@ static void QUOBalloons_Main(ObjectMaster *a1)
 
 static void QUOTimer_Display(ObjectMaster *a1)
 {
-	CardCountTexanim.sx = 16 * HorizontalStretch;
-	CardCountTexanim.sy = 16 * HorizontalStretch;
-	CardCountSlashTexanim.sx = 16 * HorizontalStretch;
-	CardCountSlashTexanim.sy = 16 * HorizontalStretch;
-	CardCountTotalTexanim.sx = 16 * HorizontalStretch;
-	CardCountTotalTexanim.sy = 16 * HorizontalStretch;
-	TimerTenMinutesTexanim.sx = 16 * HorizontalStretch;
-	TimerTenMinutesTexanim.sy = 16 * HorizontalStretch;
-	TimerMinutesTexanim.sx = 16 * HorizontalStretch;
-	TimerMinutesTexanim.sy = 16 * HorizontalStretch;
-	TimerColon1Texanim.sx = 16 * HorizontalStretch;
-	TimerColon1Texanim.sy = 16 * HorizontalStretch;
-	TimerTenSecondsTexanim.sx = 16 * HorizontalStretch;
-	TimerTenSecondsTexanim.sy = 16 * HorizontalStretch;
-	TimerSecondsTexanim.sx = 16 * HorizontalStretch;
-	TimerSecondsTexanim.sy = 16 * HorizontalStretch;
-	TimerColon2Texanim.sx = 16 * HorizontalStretch;
-	TimerColon2Texanim.sy = 16 * HorizontalStretch;
-	TimerMTenSecondsTexanim.sx = 16 * HorizontalStretch;
-	TimerMTenSecondsTexanim.sy = 16 * HorizontalStretch;
-	TimerMSecondsTexanim.sx = 16 * HorizontalStretch;
-	TimerMSecondsTexanim.sy = 16 * HorizontalStretch;
-	njColorBlendingMode(0, NJD_COLOR_BLENDING_SRCALPHA);
-	njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_INVSRCALPHA);
-	njSetTexture((NJS_TEXLIST*)0x00912DF4);
-	SetMaterialAndSpriteColor_Float(1.0f, 1.0f, 1.0f, 1.0f);
-	//Draw count
-	CardCountTexanim.texid = CollectedAll;
-	njDrawSprite2D_ForcePriority(&CardCount, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw slash
-	CardCountSlashTexanim.texid = 73;
-	njDrawSprite2D_ForcePriority(&CardCountSlash, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw total
-	CardCountTotalTexanim.texid = 6;
-	njDrawSprite2D_ForcePriority(&CardCountTotal, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw timer tenminutes
+	//Results stuff
 	TimerTenMinutesTexanim.texid = (((ChallengeTimer / 3600) % 60) / 10) % 10;
-	njDrawSprite2D_ForcePriority(&TimerTenMinutes, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw timer minutes
 	TimerMinutesTexanim.texid = ((ChallengeTimer / 3600) % 60) % 10;
-	njDrawSprite2D_ForcePriority(&TimerMinutes, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw minute colon
-	TimerColon1Texanim.texid = 10;
-	njDrawSprite2D_ForcePriority(&TimerColon1, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw timer tenseconds
 	TimerTenSecondsTexanim.texid = (((ChallengeTimer / 60) % 60) / 10) % 10;
-	njDrawSprite2D_ForcePriority(&TimerTenSeconds, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw timer seconds
 	TimerSecondsTexanim.texid = ((ChallengeTimer / 60) % 60) % 10;
-	njDrawSprite2D_ForcePriority(&TimerSeconds, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw minute colon
-	TimerColon2Texanim.texid = 10;
-	njDrawSprite2D_ForcePriority(&TimerColon2, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw timer militenseconds
 	TimerMTenSecondsTexanim.texid = (((ChallengeTimer * 5 / 3) % 1000) / 10) % 10;
-	njDrawSprite2D_ForcePriority(&TimerMTenSeconds, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	//Draw timer miliseconds
 	TimerMSecondsTexanim.texid = ((ChallengeTimer * 5 / 3) % 1000) % 10;
-	njDrawSprite2D_ForcePriority(&TimerMSeconds, 0, 22046.498f, NJD_SPRITE_ALPHA);
-	ClampGlobalColorThing_Thing();
+	//Debug timer version
+	if (!HDTimer)
+	{
+		DebugTimer_Miliseconds = ((ChallengeTimer * 5 / 3) % 1000) % 100;
+		DebugTimer_Seconds = (ChallengeTimer / 60) % 60;
+		DebugTimer_Minutes = (ChallengeTimer / 3600) % 60;
+		DebugTimer_Current = CollectedAll;
+		DebugTimer_Total = 6;
+		DrawDebugTimer();
+	}
+	else
+	{
+		CardCountTexanim.sx = 16 * HorizontalStretch;
+		CardCountTexanim.sy = 16 * HorizontalStretch;
+		CardCountSlashTexanim.sx = 16 * HorizontalStretch;
+		CardCountSlashTexanim.sy = 16 * HorizontalStretch;
+		CardCountTotalTexanim.sx = 16 * HorizontalStretch;
+		CardCountTotalTexanim.sy = 16 * HorizontalStretch;
+		TimerTenMinutesTexanim.sx = 16 * HorizontalStretch;
+		TimerTenMinutesTexanim.sy = 16 * HorizontalStretch;
+		TimerMinutesTexanim.sx = 16 * HorizontalStretch;
+		TimerMinutesTexanim.sy = 16 * HorizontalStretch;
+		TimerColon1Texanim.sx = 16 * HorizontalStretch;
+		TimerColon1Texanim.sy = 16 * HorizontalStretch;
+		TimerTenSecondsTexanim.sx = 16 * HorizontalStretch;
+		TimerTenSecondsTexanim.sy = 16 * HorizontalStretch;
+		TimerSecondsTexanim.sx = 16 * HorizontalStretch;
+		TimerSecondsTexanim.sy = 16 * HorizontalStretch;
+		TimerColon2Texanim.sx = 16 * HorizontalStretch;
+		TimerColon2Texanim.sy = 16 * HorizontalStretch;
+		TimerMTenSecondsTexanim.sx = 16 * HorizontalStretch;
+		TimerMTenSecondsTexanim.sy = 16 * HorizontalStretch;
+		TimerMSecondsTexanim.sx = 16 * HorizontalStretch;
+		TimerMSecondsTexanim.sy = 16 * HorizontalStretch;
+		njColorBlendingMode(0, NJD_COLOR_BLENDING_SRCALPHA);
+		njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_INVSRCALPHA);
+		njSetTexture((NJS_TEXLIST*)0x00912DF4);
+		SetMaterialAndSpriteColor_Float(1.0f, 1.0f, 1.0f, 1.0f);
+		//Draw count
+		CardCountTexanim.texid = CollectedAll;
+		njDrawSprite2D_ForcePriority(&CardCount, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw slash
+		CardCountSlashTexanim.texid = 73;
+		njDrawSprite2D_ForcePriority(&CardCountSlash, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw total
+		CardCountTotalTexanim.texid = 6;
+		njDrawSprite2D_ForcePriority(&CardCountTotal, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw timer tenminutes
+		njDrawSprite2D_ForcePriority(&TimerTenMinutes, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw timer minutes
+		njDrawSprite2D_ForcePriority(&TimerMinutes, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw minute colon
+		TimerColon1Texanim.texid = 10;
+		njDrawSprite2D_ForcePriority(&TimerColon1, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw timer tenseconds
+		njDrawSprite2D_ForcePriority(&TimerTenSeconds, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw timer seconds
+		njDrawSprite2D_ForcePriority(&TimerSeconds, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw minute colon
+		TimerColon2Texanim.texid = 10;
+		njDrawSprite2D_ForcePriority(&TimerColon2, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw timer militenseconds
+		njDrawSprite2D_ForcePriority(&TimerMTenSeconds, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		//Draw timer miliseconds
+		njDrawSprite2D_ForcePriority(&TimerMSeconds, 0, 22046.498f, NJD_SPRITE_ALPHA);
+		ClampGlobalColorThing_Thing();
+	}
 }
 
 static void QUOTimer_Main(ObjectMaster *a1)
