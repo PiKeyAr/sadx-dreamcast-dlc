@@ -67,6 +67,9 @@ static int MonthlyDLCs[12][2];
 
 HMODULE ADV00MODELS = GetModuleHandle(L"ADV00MODELS");
 DataPointer(COL, COL_whatever, ((size_t)ADV00MODELS + 0x001D8144));
+DataPointer(uint8_t, TextureFilterSettingForPoint_1, 0x0078B7C4);
+DataPointer(uint8_t, TextureFilterSettingForPoint_2, 0x0078B7D8);
+DataPointer(uint8_t, TextureFilterSettingForPoint_3, 0x0078B7EC);
 
 // Common
 bool EverybodySuperSonicRacing = false;
@@ -338,10 +341,6 @@ void DLCHook_MysticRuins()
 	}
 }
 
-DataPointer(uint8_t, TextureFilterSettingForPoint_1, 0x0078B7C4);
-DataPointer(uint8_t, TextureFilterSettingForPoint_2, 0x0078B7D8);
-DataPointer(uint8_t, TextureFilterSettingForPoint_3, 0x0078B7EC);
-
 void DrawDebugText_NoFiltering(NJS_POINT2 *points, float scale)
 {
 	uint8_t Backup1 = TextureFilterSettingForPoint_1;
@@ -401,7 +400,6 @@ extern "C"
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
 	__declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions &helperFunctions)
 	{
-		WriteCall((void*)0x00793BCC, DrawDebugText_NoFiltering);
 		WriteJump((void*)0x0042CCC7, PlaySegaSonicTeamVoice_asm);
 		WriteJump((void*)0x0042CD2F, PlaySegaSonicTeamVoice_asm);
 		GetLocalTime(&CurrentTime);
@@ -448,6 +446,7 @@ extern "C"
 		const IniFile *config = new IniFile(std::string(path) + "\\config.ini");
 		MenuVoiceMode = config->getInt("General settings", "MenuVoiceThing", -1);
 		HDTimer = config->getBool("General settings", "HDTimer", false);
+		if (!HDTimer) WriteCall((void*)0x00793BCC, DrawDebugText_NoFiltering);
 		if (MenuVoiceMode == 9) MenuVoiceMode = rand() % 8 + 1;
 		DisableDuringStory = config->getBool("General settings", "DisableDuringStory", true);
 		DLCMode = config->getString("General settings", "DLCMode", "Random");
