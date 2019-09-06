@@ -8,7 +8,7 @@ To install Dreamcast DLCs you can use SADX Mod Installer that sets up SADX Mod L
 
 Alternatively you could install Dreamcast DLCs manually by downloading the latest AppVeyor development build from the link below.
 
-**Latest development build:** https://ci.appveyor.com/api/projects/PiKeyAr/sadx-dreamcast-dlc/artifacts/Release/DLCs.7z
+**Latest development build:** https://ci.appveyor.com/api/projects/PiKeyAr/sadx-dreamcast-dlc/artifacts/bin/DLCs.7z
 
 Developer's Twitter: https://twitter.com/pkr_sadx
 
