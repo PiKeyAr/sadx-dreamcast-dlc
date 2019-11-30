@@ -14,6 +14,7 @@
 #include "Reebok.h"
 #include "SambaGP.h"
 #include "Y2K.h"
+#include "Kadomatsu.h"
 
 // DLC data.
 extern NJS_MATERIAL matlist_00000004[];		// Data/DLC_ATT.h
@@ -319,6 +320,11 @@ void DLCHook_StationSquare()
 		{
 			if (CurrentLevel == 26) LoadY2KRings_StationSquare(); else LoadY2KRings();
 		}
+		//Kadomatsu
+		if (CurrentDLC == 10)
+		{
+			if (CurrentLevel == 26) Kadomatsu_LoadStuff();
+		}
 	}
 }
 
@@ -470,7 +476,7 @@ extern "C"
 		};
 		static const dlcKeyInfo dlcKeyNames[12] =
 		{
-			{"Jan1DLC", "Jan2DLC", 9, 9},
+			{"Jan1DLC", "Jan2DLC", 10, 9},
 			{"Feb1DLC", "Feb2DLC", 3, 3},
 			{"Mar1DLC", "Mar2DLC", 6, 6},
 			{"Apr1DLC", "Apr2DLC", 0, 0},
@@ -604,6 +610,14 @@ extern "C"
 			case 9:
 				// Y2K Rings
 				helperFunctions.RegisterCommonObjectPVM(Y2KTextures);
+				break;
+			case 10:
+				// Kadomatsu
+				helperFunctions.RegisterCommonObjectPVM(KadomatsuTextures);
+				MusicList[68].Name = "Kado_1";
+				MusicList[69].Name = "Kado_2";
+				MusicList[70].Name = "Kado_3";
+				WriteCall((void*)0x004B793E, StopVoicesButMaybeNot_Christmas);
 				break;
 			case 51:
 				// Launch party JP
@@ -910,6 +924,15 @@ extern "C"
 						PreviousLevel = CurrentLevel;
 						PreviousAct = CurrentAct;
 					}
+				}
+			}
+			if (CurrentDLC == 10)
+			{
+				if (CurrentLevel != 26 || GameState == 6 || GameState == 21 || (GameMode != GameModes_Adventure_Field && GameMode != GameModes_Mission))
+				{
+					ObjectsLoaded = false;
+					MusicMode = 0;
+					WriteData<1>((char*)0x0062EEF9, MusicIDs_StationSquare);
 				}
 			}
 		}

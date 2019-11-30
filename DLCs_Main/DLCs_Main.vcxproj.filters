@@ -66,6 +66,9 @@
     <ClCompile Include="mod.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Kadomatsu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Balloon.h">
@@ -141,6 +144,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Quo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Data\DLC_Kadomatsu.h">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Kadomatsu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

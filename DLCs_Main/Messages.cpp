@@ -535,3 +535,53 @@ const char *const ATT3_Message16[] = {
 	"	You didn't pass all 10 gates.\n	Re-enter Sand Hill to try again.",
 	NULL,
 };
+
+const char* const KadomatsuMessage0[] = {
+	"	\n	-Hotel manager-",
+	NULL,
+};
+
+const char* const KadomatsuMessage1[] = {
+	"	\n	-Hotel manager-",
+	NULL,
+};
+
+const char* const KadomatsuMessage2[] = {
+	"	Be careful not to eat\n	too many rice cakes!",
+	NULL,
+};
+
+const char* const KadomatsuMessage3[] = {
+	"	Don't squander your New Year\n	gift money, alright?",
+	NULL,
+};
+
+const char* const KadomatsuMessage4[] = {
+	"	We pray for continued prosperity in\n	the new year! - Casinopolis Manager",
+	NULL,
+};
+
+const char* const KadomatsuMessage5[] = {
+	"	We'll be sure to fix the door switch\n	 this year - Casinopolis Manager",
+	NULL,
+};
+
+const char* const KadomatsuMessage6[] = {
+	"	Happy New Year!\n	-Sonic Team-",
+	NULL,
+};
+
+const char* const KadomatsuMessage7[] = {
+	"	Please support us in the new year too\n	-Sonic Team-",
+	NULL,
+};
+
+const char* const KadomatsuMessage8[] = {
+	"	Spend New Year's Eve playing Chao Race\n	together with your family",
+	NULL,
+};
+
+const char* const KadomatsuMessage9[] = {
+	"	On your first shrine visit this year\n	take your Chao with you",
+	NULL,
+};

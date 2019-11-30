@@ -81,6 +81,7 @@
     <ClCompile Include="Christmas98.cpp" />
     <ClCompile Include="Christmas99.cpp" />
     <ClCompile Include="Balloon.cpp" />
+    <ClCompile Include="Kadomatsu.cpp" />
     <ClCompile Include="mod.cpp" />
     <ClCompile Include="Famitsu.cpp" />
     <ClCompile Include="Halloween.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="Data\DLC_Christmas98.h" />
     <ClInclude Include="Data\DLC_Christmas99.h" />
     <ClInclude Include="Data\DLC_Halloween.h" />
+    <ClInclude Include="Data\DLC_Kadomatsu.h" />
     <ClInclude Include="Data\DLC_LaunchParty.h" />
     <ClInclude Include="Data\DLC_Reebok.h" />
     <ClInclude Include="Data\DLC_SambaGP.h" />
@@ -113,6 +115,7 @@
     <ClInclude Include="DLCs.h" />
     <ClInclude Include="Famitsu.h" />
     <ClInclude Include="Halloween.h" />
+    <ClInclude Include="Kadomatsu.h" />
     <ClInclude Include="LaunchParty.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="Posters.h" />

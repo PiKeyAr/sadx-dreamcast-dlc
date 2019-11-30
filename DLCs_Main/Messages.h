@@ -116,3 +116,14 @@ extern const char *const ATT3_Message13[];
 extern const char *const ATT3_Message14[];
 extern const char *const ATT3_Message15[];
 extern const char *const ATT3_Message16[];
+
+extern const char* const KadomatsuMessage0[];
+extern const char* const KadomatsuMessage1[];
+extern const char* const KadomatsuMessage2[];
+extern const char* const KadomatsuMessage3[];
+extern const char* const KadomatsuMessage4[];
+extern const char* const KadomatsuMessage5[];
+extern const char* const KadomatsuMessage6[];
+extern const char* const KadomatsuMessage7[];
+extern const char* const KadomatsuMessage8[];
+extern const char* const KadomatsuMessage9[];
