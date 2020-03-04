@@ -641,7 +641,7 @@ extern "C"
 			std::mt19937 mt(r());
 			std::uniform_int_distribution<int> voice(0, 7);
 			std::uniform_int_distribution<int> eggman(0, 1);
-			if (MenuVoiceMode != -1) CharacterVoice = MenuVoiceMode - 1;
+			if (MenuVoiceMode >= 0 && MenuVoiceMode < 9) CharacterVoice = MenuVoiceMode - 1;
 			else CharacterVoice = voice(mt);
 			AlternateEggman = eggman(mt) == 1;
 			if (SegaVoiceLanguage == "Japanese")
@@ -659,7 +659,9 @@ extern "C"
 	{
 		if (MenuVoiceMode != -1 && MenuVoiceMode != 9)
 		{
-			if (MenuVoice != MenuVoiceMode) MenuVoice = MenuVoiceMode;
+			if (MenuVoiceMode == -2) MenuVoice = 0;
+			else if (MenuVoiceMode != 10) MenuVoice = MenuVoiceMode;
+			else if (FrameCounter % 60 == 0) MenuVoice = rand() % 9;
 		}
 		if (HintTimer > 0) HintTimer--;
 		if (IsAdventureComplete(GetCharacterSelection()) || !DisableDuringStory)
