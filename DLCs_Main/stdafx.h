@@ -15,6 +15,7 @@
 // SADXModLoader and related.
 #include "SADXModLoader.h"
 #include "IniFile.hpp"
+#include "Trampoline.h"
 
 // DLCs
 #include "DLCs.h"
