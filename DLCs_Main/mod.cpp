@@ -3,7 +3,7 @@
 
 #include <random>
 
-// DLC code.
+// DLC code
 #include "ATT.h"
 #include "Christmas98.h"
 #include "Christmas99.h"
@@ -16,7 +16,7 @@
 #include "Y2K.h"
 #include "Kadomatsu.h"
 
-// DLC data.
+// DLC data
 extern NJS_MATERIAL matlist_00000004[];		// Data/DLC_ATT.h
 extern NJS_MATERIAL matlist_00000004_2[];	// Data/DLC_Christmas99.h
 
@@ -37,7 +37,6 @@ static const wchar_t *const OldModDLLs[] = {
 	L"SONICADV_511",
 };
 
-
 _SYSTEMTIME CurrentTime;
 
 std::string DLCMode;
@@ -46,7 +45,7 @@ std::string SegaVoiceLanguage = "English";
 
 int MenuVoiceMode;
 
-// Debug timer stuff.
+// Debug timer stuff
 bool HDTimer = false;
 char DebugCharacterRed = 0;
 int DebugTimer_Current = 0;
@@ -55,7 +54,7 @@ int DebugTimer_Minutes = 0;
 int DebugTimer_Seconds = 0;
 int DebugTimer_Miliseconds = 0;
 
-// Twinkle Circuit track IDs.
+// Twinkle Circuit track IDs
 int SonicTrack = 2;
 int TailsTrack = 1;
 int KnucklesTrack = 3;
@@ -63,7 +62,7 @@ int AmyTrack = 4;
 int BigTrack = 5;
 int GammaTrack = 0;
 
-// Monthly DLCs.
+// Monthly DLCs
 static int MonthlyDLCs[12][2];
 
 HMODULE ADV00MODELS = GetModuleHandle(L"ADV00MODELS");
@@ -364,6 +363,7 @@ void DrawDebugText_NoFiltering(NJS_POINT2 *points, float scale)
 
 void DrawDebugTimer()
 {
+	if (MessageShown) return;
 	//Character grid is 40x30 for 4:3 resolutions, each character is 16x16 for 640x480 at scale 16
 	float HorizontalResolution_float = (float)HorizontalResolution;
 	float VerticalResolution_float = (float)VerticalResolution;

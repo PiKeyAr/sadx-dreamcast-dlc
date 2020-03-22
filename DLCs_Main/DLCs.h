@@ -83,6 +83,7 @@ FunctionPointer(void, sub_425800, (int a1), 0x425800);
 // NOTE: These were previously defined as DataPointer() here,
 // but SADXVariables.h defines them as well but with a different name,
 // so we're just using a macro to rename them.
+DataPointer(int, MessageShown, 0x3C58258);
 #define DroppedFrames MissedFrames
 #define FramerateSetting DeltaTimeMultiplier
 #define ControllerPointersShit ControllerPointers
