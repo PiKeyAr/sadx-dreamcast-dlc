@@ -41,7 +41,6 @@ _SYSTEMTIME CurrentTime;
 
 std::string DLCMode;
 int LaunchPartyDLCMode = 0;
-std::string SegaVoiceLanguage = "English";
 
 int MenuVoiceMode;
 
@@ -72,6 +71,7 @@ DataPointer(uint8_t, TextureFilterSettingForPoint_2, 0x0078B7D8);
 DataPointer(uint8_t, TextureFilterSettingForPoint_3, 0x0078B7EC);
 
 // Common
+bool SEGAVoice = false;
 bool EverybodySuperSonicRacing = false;
 int CurrentDLC = 0;
 bool ObjectsLoaded = false;
@@ -131,7 +131,6 @@ bool Gate10 = false;
 static const PVMEntry TimerTextures = { "CON_REGULAR_E", (TexList *)0x00912DF4 };
 
 static int CharacterVoice = 0;
-static int VoiceLanguage_sel = 1;
 static bool AlternateEggman = false;
 
 // SEGA, Sonic Team
@@ -155,7 +154,7 @@ static int GetVoiceNumber(int value)
 
 static void PlaySegaSonicTeamVoice()
 {
-	if (SegaVoiceLanguage != "Off")
+	if (SEGAVoice)
 	{
 		if (SegaLogo_Frames == 1 && SoundManager_ptr == nullptr)
 		{
@@ -172,7 +171,6 @@ static void PlaySegaSonicTeamVoice()
 			switch (SegaLogo_Mode)
 			{
 			case 1:
-				VoiceLanguage = VoiceLanguage_sel;
 				PlayVoice(GetVoiceNumber(0));
 				SoundManager_ptr->MainSub(SoundManager_ptr);
 				break;
@@ -457,7 +455,7 @@ extern "C"
 		DisableDuringStory = config->getBool("General settings", "DisableDuringStory", true);
 		DLCMode = config->getString("General settings", "DLCMode", "Random");
 		CurrentDLC = config->getInt("General settings", "DLCSingle", 0);
-		SegaVoiceLanguage = config->getString("General settings", "SegaVoiceLanguage", "English");
+		SEGAVoice = config->getBool("General settings", "SegaVoice", false);
 		EverybodySuperSonicRacing = config->getBool("Samba GP settings", "SuperSonicRacing", false);
 		SonicTrack = config->getInt("Samba GP settings", "SonicTrack", 2);
 		TailsTrack = config->getInt("Samba GP settings", "TailsTrack", 1);
@@ -635,18 +633,18 @@ extern "C"
 				break;
 		}
 
-		if (SegaVoiceLanguage != "Off")
+		if (SEGAVoice)
 		{
 			std::random_device r;
 			std::mt19937 mt(r());
 			std::uniform_int_distribution<int> voice(0, 7);
 			std::uniform_int_distribution<int> eggman(0, 1);
-			if (MenuVoiceMode >= 0 && MenuVoiceMode < 9) CharacterVoice = MenuVoiceMode - 1;
+			if (MenuVoiceMode >= 0 && MenuVoiceMode < 9) CharacterVoice = max(0, MenuVoiceMode - 1);
+			else if (MenuVoiceMode == -2) CharacterVoice = 7;
 			else CharacterVoice = voice(mt);
 			AlternateEggman = eggman(mt) == 1;
-			if (SegaVoiceLanguage == "Japanese")
+			if (!VoiceLanguage)
 			{
-				VoiceLanguage_sel = 0;
 				if (CharacterVoice == 5)
 				{
 					WriteData<1>((char*)0x0042CC9C, 0xFF);
