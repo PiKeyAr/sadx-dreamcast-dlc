@@ -12,8 +12,6 @@ Alternatively you could install Dreamcast DLCs manually by downloading the lates
 
 **Latest development build:** https://ci.appveyor.com/api/projects/PiKeyAr/sadx-dreamcast-dlc/artifacts/bin/DLCs.7z
 
-Developer's Twitter: https://twitter.com/pkr_sadx
-
 **Related mods:**
 
 Dreamcast Conversion: https://github.com/PiKeyAr/sadx_dreamcast
