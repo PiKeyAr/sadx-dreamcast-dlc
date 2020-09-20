@@ -1,3 +1,6 @@
+//TODO: Replace 0s with Os
+//TODO: Rework the whole thing lol
+
 #include "stdafx.h"
 #include "IniFile.hpp"
 #include "DLCs.h"
@@ -350,21 +353,6 @@ void DLCHook_MysticRuins()
 			if (CurrentLevel == 26 || CurrentLevel == 33) LoadQUOStuff();
 		}
 	}
-}
-
-void DrawDebugText_NoFiltering(NJS_POINT2 *points, float scale)
-{
-	uint8_t Backup1 = TextureFilterSettingForPoint_1;
-	uint8_t Backup2 = TextureFilterSettingForPoint_2;
-	uint8_t Backup3 = TextureFilterSettingForPoint_3;
-	WriteData((uint8_t*)0x0078B7C4, (uint8_t)0x01);
-	WriteData((uint8_t*)0x0078B7D8, (uint8_t)0x01);
-	WriteData((uint8_t*)0x0078B7EC, (uint8_t)0x01);
-	Direct3D_TextureFilterPoint();
-	DrawRectPoints(points, scale);
-	WriteData((uint8_t*)0x0078B7C4, Backup1);
-	WriteData((uint8_t*)0x0078B7D8, Backup2);
-	WriteData((uint8_t*)0x0078B7EC, Backup3);
 }
 
 void BackupDebugFontSettings()
