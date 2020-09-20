@@ -467,6 +467,7 @@ static void ATTObject_Main(ObjectMaster *a1)
 					HighwayGoal = false;
 					ChallengeTimer = 0;
 					ChallengeAction = true;
+					DebugTimer_MaxMins = 5;
 					ChallengeOver = false;
 					v1->Action = 1;
 					sub_412D80(LevelIDs_SpeedHighway, 0);
@@ -634,6 +635,7 @@ static void ATTObject_Main(ObjectMaster *a1)
 					{
 						PlaySound(5, 0, 0, 0);
 						ChallengeAction = true;
+						DebugTimer_MaxMins = 5;
 						DisplayHintText(ATT2_Message3, 120);
 						HintTimer = 120;
 					}
@@ -788,6 +790,7 @@ static void ATTObject_Main(ObjectMaster *a1)
 						v1->Action = 1;
 						PlaySound(5, 0, 0, 0);
 						ChallengeAction = true;
+						DebugTimer_MaxMins = 3;
 						DisplayHintText(ATT3_Message3, 120);
 						HintTimer = 60;
 					}

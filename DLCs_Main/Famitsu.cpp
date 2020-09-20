@@ -202,6 +202,7 @@ static void FamitsuBalloons_Main(ObjectMaster *a1)
 					Collected5 = false;
 					CollectedAll = 0;
 					ChallengeAction = true;
+					DebugTimer_MaxMins = 10;
 					HintTimer = 60;
 				}
 			}

@@ -218,6 +218,7 @@ static void QUOBalloons_Main(ObjectMaster *a1)
 					CollectedMR3 = false;
 					CollectedAll = 0;
 					ChallengeAction = true;
+					DebugTimer_MaxMins = 10;
 					HintTimer = 60;
 				}
 			}

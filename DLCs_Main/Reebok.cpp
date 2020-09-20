@@ -128,6 +128,7 @@ static void ReebokPoster_Main(ObjectMaster *a1)
 					Collected5 = false;
 					ChallengeTimer = 0;
 					ChallengeAction = true;
+					DebugTimer_MaxMins = 10;
 					ChallengeOver = false;
 					v1->Action = 1;
 					sub_412D80(LevelIDs_EmeraldCoast, 0);

@@ -51,12 +51,15 @@ NJS_COLOR DebugFontColorBK;
 float DebugFontSizeBK;
 bool DebugFontItalic = false;
 bool HDTimer = false;
+bool TimerFlip = false;
+bool PauseFlip = false;
 char DebugCharacterRed = 0;
 int DebugTimer_Current = 0;
 int DebugTimer_Total = 0;
 int DebugTimer_Minutes = 0;
 int DebugTimer_Seconds = 0;
 int DebugTimer_Miliseconds = 0;
+int DebugTimer_MaxMins = 5;
 
 // Twinkle Circuit track IDs
 int SonicTrack = 2;
@@ -384,37 +387,69 @@ void DrawDebugTimer()
 	float HorizontalResolution_float = (float)HorizontalResolution;
 	float VerticalResolution_float = (float)VerticalResolution;
 	int FontScale = int(HorizontalResolution_float / 640.0f);
-	int RightColumn = int(floor(HorizontalResolution_float/(16.0f*FontScale)));
-	int BottomLine = int(floor(VerticalResolution_float/(16.0f*FontScale)));
-	if (!IsGamePaused() && ((FramerateSetting < 2 && FrameCounter % 4 == 0) || FramerateSetting >= 2 && FrameCounter % 2 == 0)) DebugCharacterRed++;
-	if (DebugCharacterRed > 7) DebugCharacterRed = 0;
-	SetDebugFontSize(FontScale*16);
-	SetDebugFontColor(0x01F0F049);
-	DisplayDebugString(NJM_LOCATION(RightColumn-9, BottomLine-7), "[TARGET]");
-	SetDebugFontColor(0x015AC3F0);
-	PrintDebugNumber(NJM_LOCATION(RightColumn-6, BottomLine-6), DebugTimer_Current, 2); //Current number of targets
-	PrintDebugNumber(NJM_LOCATION(RightColumn-3, BottomLine-6), DebugTimer_Total, 2); //Total number of targets
-	SetDebugFontColor(0x014AEE66);
-	DisplayDebugString(NJM_LOCATION(RightColumn-4, BottomLine-6), "/");
-	if (DebugCharacterRed == 0) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
-	DisplayDebugString(NJM_LOCATION(RightColumn-9, BottomLine-5), "-");
-	if (DebugCharacterRed == 2) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
-	DisplayDebugString(NJM_LOCATION(RightColumn-7, BottomLine-5), "T");
-	if (DebugCharacterRed == 3) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
-	DisplayDebugString(NJM_LOCATION(RightColumn-6, BottomLine-5), "I");
-	if (DebugCharacterRed == 4) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
-	DisplayDebugString(NJM_LOCATION(RightColumn-5, BottomLine-5), "M");
-	if (DebugCharacterRed == 5) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
-	DisplayDebugString(NJM_LOCATION(RightColumn-4, BottomLine-5), "E");
-	if (DebugCharacterRed == 7) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
-	DisplayDebugString(NJM_LOCATION(RightColumn-2, BottomLine-5), "-");
-	SetDebugFontColor(0x0187E1EF);
-	DisplayDebugString(NJM_LOCATION(RightColumn-7, BottomLine-4), ":");
-	DisplayDebugString(NJM_LOCATION(RightColumn-4, BottomLine-4), ":");
-	SetDebugFontColor(0x01B3DFED);
-	PrintDebugNumber(NJM_LOCATION(RightColumn-9, BottomLine-4), DebugTimer_Minutes, 2); //Timer minutes
-	PrintDebugNumber(NJM_LOCATION(RightColumn-6, BottomLine-4), DebugTimer_Seconds, 2); //Timer seconds
-	PrintDebugNumber(NJM_LOCATION(RightColumn-3, BottomLine-4), DebugTimer_Miliseconds, 2); //Timer miliseconds
+	int RightColumn = int(floor(HorizontalResolution_float / (16.0f * FontScale)));
+	int BottomLine = int(floor(VerticalResolution_float / (16.0f * FontScale)));
+	SetDebugFontSize(FontScale * 16);
+	//Show prompt if game is paused
+	if (IsGamePaused())
+	{
+		if (ChallengeAction)
+		{
+			SetDebugFontColor(0x019FEA9E);
+			DisplayDebugString(NJM_LOCATION(RightColumn - 10, BottomLine - 7), "- RETRY -");
+			if (FrameCounter % 30 == 0) PauseFlip = !PauseFlip;
+			if (PauseFlip)
+			{
+				SetDebugFontColor(0x0181EA80);
+				DisplayDebugString(NJM_LOCATION(RightColumn - 9, BottomLine - 6), "PRESS Y");
+			}
+		}
+	}
+	else
+	{
+		if (ChallengeTimer % 4 == 0) DebugCharacterRed++;
+		if (DebugCharacterRed > 7) DebugCharacterRed = 0;
+		SetDebugFontColor(0x01F0F049);
+		DisplayDebugString(NJM_LOCATION(RightColumn - 9, BottomLine - 7), "[TARGET]");
+		//Count display
+		if (TimerFlip)
+		{
+			SetDebugFontColor(0x015AC3F0);
+			PrintDebugNumber(NJM_LOCATION(RightColumn - 6, BottomLine - 6), DebugTimer_Current, 2); //Current number of targets
+			PrintDebugNumber(NJM_LOCATION(RightColumn - 3, BottomLine - 6), DebugTimer_Total, 2); //Total number of targets
+			SetDebugFontColor(0x014AEE66);
+			DisplayDebugString(NJM_LOCATION(RightColumn - 4, BottomLine - 6), "/");
+		}
+		//Target time display
+		else
+		{
+			SetDebugFontColor(0x014AEE66);
+			DisplayDebugStringFormatted(NJM_LOCATION(RightColumn - 9, BottomLine - 6), "%02d:00:00", DebugTimer_MaxMins);
+		}
+		if (DebugCharacterRed == 0) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
+		DisplayDebugString(NJM_LOCATION(RightColumn - 9, BottomLine - 5), "-");
+		if (DebugCharacterRed == 2) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
+		DisplayDebugString(NJM_LOCATION(RightColumn - 7, BottomLine - 5), "T");
+		if (DebugCharacterRed == 3) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
+		DisplayDebugString(NJM_LOCATION(RightColumn - 6, BottomLine - 5), "I");
+		if (DebugCharacterRed == 4) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
+		DisplayDebugString(NJM_LOCATION(RightColumn - 5, BottomLine - 5), "M");
+		if (DebugCharacterRed == 5) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
+		DisplayDebugString(NJM_LOCATION(RightColumn - 4, BottomLine - 5), "E");
+		if (DebugCharacterRed == 7) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
+		DisplayDebugString(NJM_LOCATION(RightColumn - 2, BottomLine - 5), "-");
+		if (DebugCharacterRed == 0) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x0187E1EF);
+		DisplayDebugString(NJM_LOCATION(RightColumn - 7, BottomLine - 4), ":");
+		DisplayDebugString(NJM_LOCATION(RightColumn - 4, BottomLine - 4), ":");
+		SetDebugFontColor(0x01B3DFED);
+		PrintDebugNumber(NJM_LOCATION(RightColumn - 9, BottomLine - 4), DebugTimer_Minutes, 2); //Timer minutes
+		PrintDebugNumber(NJM_LOCATION(RightColumn - 6, BottomLine - 4), DebugTimer_Seconds, 2); //Timer seconds
+		PrintDebugNumber(NJM_LOCATION(RightColumn - 3, BottomLine - 4), DebugTimer_Miliseconds, 2); //Timer miliseconds
+		if (ChallengeTimer % 255 == 0)
+		{
+			TimerFlip = !TimerFlip;
+		}
+	}
 	RestoreDebugFontSettings();
 }
 
@@ -422,13 +457,13 @@ void njDrawQuadTexture_Italic(NJS_QUAD_TEXTURE* points, float scale)
 {
 	NJS_QUAD_TEXTURE_EX _points; // [esp+0h] [ebp-40h]
 
-	_points.x = points->x1 + DebugFontItalic * 10.0f;
+	_points.x = points->x1 + DebugFontItalic * 4.0f; //offset for accuracy
 	_points.y = points->y1;
 	_points.z = scale;
 	_points.u = points->u1;
 	_points.v = points->v1;
-	_points.vx1 = points->x2 - points->x1; //width
-	_points.vx2 = DebugFontItalic * -10.0f;
+	_points.vx1 = points->x2 - points->x1 + DebugFontItalic * 4.0f; //width
+	_points.vx2 = DebugFontItalic * -10.0f; //italics
 	_points.vy1 = 0.0f;
 	_points.vy2 = points->y2 - points->y1;
 	_points.vu1 = points->u2 - points->u1;
@@ -1006,6 +1041,15 @@ extern "C"
 		{
 			if (CurrentDLC == 0)
 			{
+				if (CurrentCharacter == 0 && GameState == 16)
+				{
+					if (ChallengeAction && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
+					{
+						ChallengeTimer = 0;
+						ChallengeAction = false;
+						ChallengeOver = false;
+					}
+				}
 				if (CurrentCharacter == 3 && GameState == 16)
 				{
 					if (ChallengeAction && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
@@ -1038,6 +1082,20 @@ extern "C"
 						Gate10 = false;
 						ChallengeTimer = 0;
 					}
+				}
+			}
+			if (CurrentDLC == 7 && GameState == 16)
+			{
+				if (ChallengeAction && (ControllerPointersShit[0]->PressedButtons & Buttons_Y) == Buttons_Y)
+				{
+					CollectedAll = 0;
+					Collected1 = false;
+					Collected2 = false;
+					Collected3 = false;
+					Collected4 = false;
+					Collected5 = false;
+					ChallengeTimer = 0;
+					ChallengeAction = false;
 				}
 			}
 			if (CurrentDLC == 3 && GameState == 16)

@@ -3,6 +3,7 @@
 
 void DrawDebugTimer();
 
+extern int DebugTimer_MaxMins;
 extern bool HDTimer;
 extern int DebugTimer_Current;
 extern int DebugTimer_Total;
