@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "IniFile.hpp"
 #include "DLCs.h"
 
 #include <random>
@@ -15,6 +16,7 @@
 #include "SambaGP.h"
 #include "Y2K.h"
 #include "Kadomatsu.h"
+#include "Messages.h"
 
 // DLC data
 extern NJS_MATERIAL matlist_00000004[];		// Data/DLC_ATT.h
@@ -45,6 +47,9 @@ int LaunchPartyDLCMode = 0;
 int MenuVoiceMode;
 
 // Debug timer stuff
+NJS_COLOR DebugFontColorBK;
+float DebugFontSizeBK;
+bool DebugFontItalic = false;
 bool HDTimer = false;
 char DebugCharacterRed = 0;
 int DebugTimer_Current = 0;
@@ -359,9 +364,22 @@ void DrawDebugText_NoFiltering(NJS_POINT2 *points, float scale)
 	WriteData((uint8_t*)0x0078B7EC, Backup3);
 }
 
+void BackupDebugFontSettings()
+{
+	DebugFontColorBK = DebugFontColor;
+	DebugFontSizeBK = DebugFontSize;
+}
+
+void RestoreDebugFontSettings()
+{
+	DebugFontColor = DebugFontColorBK;
+	DebugFontSize = DebugFontSizeBK;
+}
+
 void DrawDebugTimer()
 {
 	if (MessageShown) return;
+	BackupDebugFontSettings();
 	//Character grid is 40x30 for 4:3 resolutions, each character is 16x16 for 640x480 at scale 16
 	float HorizontalResolution_float = (float)HorizontalResolution;
 	float VerticalResolution_float = (float)VerticalResolution;
@@ -371,32 +389,87 @@ void DrawDebugTimer()
 	if (!IsGamePaused() && ((FramerateSetting < 2 && FrameCounter % 4 == 0) || FramerateSetting >= 2 && FrameCounter % 2 == 0)) DebugCharacterRed++;
 	if (DebugCharacterRed > 7) DebugCharacterRed = 0;
 	SetDebugFontSize(FontScale*16);
-	SetDebugFontColor(0xFFF0F049);
+	SetDebugFontColor(0x01F0F049);
 	DisplayDebugString(NJM_LOCATION(RightColumn-9, BottomLine-7), "[TARGET]");
-	SetDebugFontColor(0xFF5AC3F0);
+	SetDebugFontColor(0x015AC3F0);
 	PrintDebugNumber(NJM_LOCATION(RightColumn-6, BottomLine-6), DebugTimer_Current, 2); //Current number of targets
 	PrintDebugNumber(NJM_LOCATION(RightColumn-3, BottomLine-6), DebugTimer_Total, 2); //Total number of targets
-	SetDebugFontColor(0xFF4AEE66);
+	SetDebugFontColor(0x014AEE66);
 	DisplayDebugString(NJM_LOCATION(RightColumn-4, BottomLine-6), "/");
-	if (DebugCharacterRed == 0) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	if (DebugCharacterRed == 0) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
 	DisplayDebugString(NJM_LOCATION(RightColumn-9, BottomLine-5), "-");
-	if (DebugCharacterRed == 2) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	if (DebugCharacterRed == 2) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
 	DisplayDebugString(NJM_LOCATION(RightColumn-7, BottomLine-5), "T");
-	if (DebugCharacterRed == 3) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	if (DebugCharacterRed == 3) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
 	DisplayDebugString(NJM_LOCATION(RightColumn-6, BottomLine-5), "I");
-	if (DebugCharacterRed == 4) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	if (DebugCharacterRed == 4) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
 	DisplayDebugString(NJM_LOCATION(RightColumn-5, BottomLine-5), "M");
-	if (DebugCharacterRed == 5) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	if (DebugCharacterRed == 5) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
 	DisplayDebugString(NJM_LOCATION(RightColumn-4, BottomLine-5), "E");
-	if (DebugCharacterRed == 7) SetDebugFontColor(0xFFE94202); else SetDebugFontColor(0xFFF0C046);
+	if (DebugCharacterRed == 7) SetDebugFontColor(0x01E94202); else SetDebugFontColor(0x01F0C046);
 	DisplayDebugString(NJM_LOCATION(RightColumn-2, BottomLine-5), "-");
-	SetDebugFontColor(0xFF87E1EF);
+	SetDebugFontColor(0x0187E1EF);
 	DisplayDebugString(NJM_LOCATION(RightColumn-7, BottomLine-4), ":");
 	DisplayDebugString(NJM_LOCATION(RightColumn-4, BottomLine-4), ":");
-	SetDebugFontColor(0xFFB3DFED);
+	SetDebugFontColor(0x01B3DFED);
 	PrintDebugNumber(NJM_LOCATION(RightColumn-9, BottomLine-4), DebugTimer_Minutes, 2); //Timer minutes
 	PrintDebugNumber(NJM_LOCATION(RightColumn-6, BottomLine-4), DebugTimer_Seconds, 2); //Timer seconds
 	PrintDebugNumber(NJM_LOCATION(RightColumn-3, BottomLine-4), DebugTimer_Miliseconds, 2); //Timer miliseconds
+	RestoreDebugFontSettings();
+}
+
+void njDrawQuadTexture_Italic(NJS_QUAD_TEXTURE* points, float scale)
+{
+	double widthmaybe; // st7
+	Float base_x; // ecx
+	Float v4; // edx
+	double v5; // st7
+	Float v6; // ecx
+	double v7; // st7
+	double v8; // st7
+	NJS_QUAD_TEXTURE_EX _points; // [esp+0h] [ebp-40h]
+
+	widthmaybe = points->x2 - points->x1;
+	base_x = points->x1;
+	_points.y = points->y1;
+	v4 = points->u1;
+	_points.vx1 = widthmaybe;
+	_points.x = base_x;
+	v5 = points->y2 - points->y1;
+	_points.u = v4;
+	_points.z = scale;
+	v6 = points->v1;
+	_points.vy2 = v5;
+	v7 = points->u2 - points->u1;
+	_points.vy1 = 0.0;
+	_points.vx2 = 0.0;
+	_points.v = v6;
+	_points.vu1 = v7;
+	_points.vv1 = 0.0;
+	v8 = points->v2;
+	_points.vu2 = 0.0;
+	_points.vv2 = v8 - points->v1;
+	if (DebugFontItalic) _points.vx2 -= (_points.vx1 / 2.5f); //this line does the italics
+	Direct3D_DrawQuad(&_points);
+}
+
+void SetHudColorAndTextureNum_Italic(int n, NJS_COLOR color)
+{
+	NJS_COLOR c;
+	c.argb.r = color.argb.r;
+	c.argb.g = color.argb.g;
+	c.argb.b = color.argb.b;
+	if (color.argb.a < 15)
+	{
+		if (color.argb.a & 0x1) DebugFontItalic = true;
+		c.argb.a = 255;
+		SetHudColorAndTextureNum(n, c);
+	}
+	else
+	{
+		DebugFontItalic = false;
+		SetHudColorAndTextureNum(n, color);
+	}
 }
 
 extern "C"
@@ -450,7 +523,11 @@ extern "C"
 		const IniFile *config = new IniFile(std::string(path) + "\\config.ini");
 		MenuVoiceMode = config->getInt("General settings", "MenuVoiceThing", -1);
 		HDTimer = config->getBool("General settings", "HDTimer", false);
-		if (!HDTimer) WriteCall((void*)0x00793BCC, DrawDebugText_NoFiltering);
+		if (!HDTimer)
+		{
+			WriteCall((void*)0x793D06, SetHudColorAndTextureNum_Italic);
+			WriteCall((void*)0x793BCC, njDrawQuadTexture_Italic);
+		}
 		if (MenuVoiceMode == 9) MenuVoiceMode = rand() % 8 + 1;
 		DisableDuringStory = config->getBool("General settings", "DisableDuringStory", true);
 		DLCMode = config->getString("General settings", "DLCMode", "Random");
