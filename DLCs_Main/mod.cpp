@@ -6,11 +6,10 @@
 #include "ChallengeTimer.h"
 #include "SADXData.h"
 #include <ModelInfo.h>
+#include <Trampoline.h>
 
 //TODO: Write out save files
-//TODO: Seasonal stuff
-//TODO: DX asset compatibility
-//TODO: DX rendering workarounds
+//TODO: Config and seasonal stuff
 //TODO: Trigger for circuit menu
 //TODO: DLC selection menu
 
@@ -52,6 +51,29 @@ bool FileExists(const char* filename)
 
 signed int __cdecl InitDownload()
 {
+	//Exit if not the right character
+	switch (CurrentCharacter)
+	{
+	case Characters_Sonic:
+		if (!meta.chars_sonic) return 1;
+		break;
+	case Characters_Tails:
+		if (!meta.chars_tails) return 1;
+		break;
+	case Characters_Knuckles:
+		if (!meta.chars_knuckles) return 1;
+		break;
+	case Characters_Amy:
+		if (!meta.chars_amy) return 1;
+		break;
+	case Characters_Gamma:
+		if (!meta.chars_e102) return 1;
+		break;
+	case Characters_Big:
+		if (!meta.chars_big) return 1;
+		break;
+	}
+
 	//Load checkerboard texture
 	checker_textures[0].texaddr = (Uint32)TexMemList_PixelFormat(&checker_texinfo, 237542221);
 
@@ -150,7 +172,12 @@ extern "C"
 		const std::string s_download_ini(helperFunctions.GetReplaceablePath(path_dlc_ini.c_str()));
 		PrintDebug("Path: %s\n", s_download_ini.c_str());
 
-		ModelInfo* mdl = new ModelInfo(path_model_flat);
+		//Tell which function to use when rendering models
+		for (int i = 0; i < 5; i++)
+		{
+			std::string renderinfo = path_download + "RENDER_" + std::to_string(i);
+			if (FileExists(helperFunctions.GetReplaceablePath(renderinfo.c_str()))) meta.rendermode = i;
+		}
 
 		//Load metadata and items
 		ini_download = new IniFile(s_download_ini);

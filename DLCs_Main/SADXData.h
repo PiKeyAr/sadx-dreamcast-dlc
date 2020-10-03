@@ -318,3 +318,6 @@ FunctionPointer(void, DisplayHintText_, (const char* strings, int duration), 0x4
 FunctionPointer(void, CreateSubtitleText, (int* a1), 0x4B7710);
 FunctionPointer(void, CreateHintMessage, (void* a1, const char** a2, int a3), 0x4B7920);
 FunctionPointer(void, DrawModelCallback_QueueSprite, (void(__cdecl* function)(NJS_SPRITE*), NJS_SPRITE* data, float depth, QueuedModelFlagsB queueflags), 0x404840);
+FunctionPointer(void, ProcessModelNode_A, (NJS_OBJECT* a1), 0x4034B0);
+FunctionPointer(void, ProcessModelNode_E, (NJS_OBJECT* a1, QueuedModelFlagsB a2, float a3), 0x40A1E0);
+FunctionPointer(void, ProcessModelNode_F, (NJS_OBJECT *a1), 0x40A280);

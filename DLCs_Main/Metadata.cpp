@@ -12,6 +12,7 @@ std::string DLCMetadata::title;
 std::string DLCMetadata::description;
 std::string DLCMetadata::appname;
 Uint32 DLCMetadata::dlc_id;
+Uint8 DLCMetadata::rendermode;
 bool DLCMetadata::has_mlt;
 bool DLCMetadata::chars_sonic;
 bool DLCMetadata::chars_tails;

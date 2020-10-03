@@ -14,6 +14,28 @@ list <int> ::iterator it;
 ChallengeTimer timer;
 OBJ_CONDITION setdata_dlc;
 
+struct DXCompatibilityThing
+{
+	char level;
+	char act;
+	NJS_VECTOR position_orig;
+	NJS_VECTOR position_dx;
+	unsigned __int16 yrot_dx;
+};
+
+DXCompatibilityThing DXAssets[] = {
+	//Launch party
+	{ 26, 0, { 205, 72, 1011 }, { 102, 79, 768 }, 0x4000 },
+	{ 26, 0, { 77, 308, 270 }, { 77, 308, 340 }, 0 },
+	{ 26, 0, { 458, 308, 263 }, { 458, 308, 333 }, 0 },
+	//AT&T3
+	{ 26, 3, { -5, 41, 1400 }, { -2.75f, 41, 1403.375f }, 0x127D },
+	{ 26, 3, { 57, 41, 1369 }, { 59.25f, 41, 1372.375f }, 0x127D },
+	//XMAS99
+	{ 26, 3, { -23, 2, 1673 }, { -23, -1, 1673 }, 0 },
+	{ 26, 0, { 265, 1, 668 }, { 265, -1, 712 }, 0 },
+};
+
 enum DLCObjectActions
 {
 	ACTION_NORMAL = 0x0,
@@ -209,14 +231,6 @@ void DLCObject_Display(task* a1)
 	{
 		njControl3D_Backup();
 		BackupConstantAttr();
-		if (v1->mode == ACTION_DISAPPEAR || v1->mode == ACTION_REAPPEAR)
-		{
-			njControl3D_Add(NJD_CONTROL_3D_CONSTANT_MATERIAL | NJD_CONTROL_3D_CONSTANT_ATTR);
-			AddConstantAttr(0, NJD_FLAG_USE_ALPHA);
-			float alpha = (max(0, 255.0f - (float)v1->wtimer)) / 255.0f;
-			//PrintDebug("Timer %f\n", alpha);
-			SetMaterialAndSpriteColor_Float(alpha, 1.0f, 1.0f, 1.0f);
-		}
 		njSetTexture(&maintexlist);
 		njPushMatrix(0);
 		njTranslateV(0, &v1->pos);
@@ -224,11 +238,43 @@ void DLCObject_Display(task* a1)
 		njScale(0, v1->scl.x, v1->scl.y, v1->scl.z);
 		if (data->objecttype == TYPE_SPRITE)
 		{
+			if (v1->mode == ACTION_DISAPPEAR || v1->mode == ACTION_REAPPEAR)
+			{
+				njControl3D_Add(NJD_CONTROL_3D_CONSTANT_MATERIAL | NJD_CONTROL_3D_CONSTANT_ATTR);
+				AddConstantAttr(0, NJD_FLAG_USE_ALPHA);
+				float alpha = (max(0, 255.0f - (float)v1->wtimer)) / 255.0f;
+				SetMaterialAndSpriteColor_Float(alpha, 1.0f, 1.0f, 1.0f);
+			}
 			DrawQueueDepthBias = -47000.0f;
 			ProcessModelNode(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
 		}
-		//DX rendering workarounds needed
-		else ProcessModelNode_AB_Wrapper(data->model, 1.0f);
+		else
+		{
+			switch (meta.rendermode)
+			{
+			case 1:
+				ProcessModelNode_A(data->model);
+				break;
+			case 2:
+				ProcessModelNode_B(data->model, v1->scl.x);
+				break;
+			case 3:
+				ProcessModelNode_C(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
+				break;
+			case 4:
+				ProcessModelNode_D(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
+				break;
+			case 5:
+				ProcessModelNode_E(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
+				break;
+			case 6:
+				ProcessModelNode_F(data->model);
+				break;
+			default:
+				ProcessModelNode_AB_Wrapper(data->model, v1->scl.x);
+				break;
+			}
+		}
 		DrawQueueDepthBias = 0.0f;
 		njPopMatrix(1u);
 		RestoreConstantAttr();
@@ -428,5 +474,23 @@ void LoadDLCObject(DLCObjectData* data)
 		ent->scl.x = data->scale_x;
 		ent->scl.y = data->scale_y;
 		ent->scl.z = data->scale_z;
+		
+		//DX stuff
+		if (meta.dxmode)
+		{
+			for (int i = 0; i < LengthOfArray(DXAssets); i++)
+			{
+				if (data->level == DXAssets[i].level && data->act == DXAssets[i].act)
+				{
+					if (data->x == DXAssets[i].position_orig.x && data->y == DXAssets[i].position_orig.y && data->z == DXAssets[i].position_orig.z)
+					{
+						ent->pos.x = DXAssets[i].position_dx.x;
+						ent->pos.y = DXAssets[i].position_dx.y;
+						ent->pos.z = DXAssets[i].position_dx.z;
+						ent->ang.y = DXAssets[i].yrot_dx;
+					}
+				}
+			}
+		}
 	}
 }

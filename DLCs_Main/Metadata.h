@@ -45,9 +45,9 @@ public:
 	float scale_x;
 	float scale_y;
 	float scale_z;
-	Uint8 rotspeed_x;
-	Uint8 rotspeed_y;
-	Uint8 rotspeed_z;
+	Sint8 rotspeed_x;
+	Sint8 rotspeed_y;
+	Sint8 rotspeed_z;
 	DLCObjectTypes objecttype;
 	Uint8 textureid;
 	DLCObjectFlags flags;
@@ -85,7 +85,8 @@ public:
 	static bool chars_e102;
 	static bool chars_amy;
 	static bool chars_big;
-	static char whatever;
+	static Uint8 rendermode;
+	static Uint8 whatever;
 	static DLCRegionLocks region;
 	static DLCObjectData items[256];
 	static std::string JapaneseStrings[16];
