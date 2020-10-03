@@ -12,7 +12,7 @@ using namespace std;
 list <int> ::iterator it;
 
 ChallengeTimer timer;
-SETObjData setdata_dlc;
+OBJ_CONDITION setdata_dlc;
 
 enum DLCObjectActions
 {
@@ -21,45 +21,46 @@ enum DLCObjectActions
 	ACTION_REAPPEAR = 0x2,
 };
 
-void DLCObject_Delete(ObjectMaster* a1)
+void DLCObject_Delete(task* a1)
 {
 	//PrintDebug("Deleting object\n");
 	DLCObjectData* data;
-	EntityData1* v1;
-	v1 = a1->Data1;
-	data = (DLCObjectData*)a1->UnknownB_ptr;
-	if (data == nullptr)
+	//Check if data is already deleted
+	if (a1->awp != nullptr)
 	{
-		//PrintDebug("Delete sub why?");
-		return;
+		data = (DLCObjectData*)a1->awp->work.ptr[0];
+		if (data != nullptr)
+		{
+			//Delete message
+			if (data->flags & FLAG_MESSAGE)
+			{
+				//PrintDebug("Delete message\n");
+				delete[] a1->awp->work.ptr[1];
+				a1->awp->work.ptr[1] = NULL;
+			}
+			//Delete collision
+			if (data->flags & FLAG_SOLID || data->flags & FLAG_COLLISION_ONLY) DynamicCOL_DeleteObject((ObjectMaster*)a1);
+			a1->awp->work.ptr[0] = NULL;
+		}
+		_HeapFree(a1->awp);
+		a1->awp = NULL;
 	}
-	//Delete message
-	if (data->flags & FLAG_MESSAGE)
-	{
-		const char** arr = (const char**)v1->LoopData;
-		delete[] arr;
-		arr = NULL;
-	}
-	
-	//Delete collision
-	a1->UnknownB_ptr = NULL;
-	if (data->flags & FLAG_SOLID || data->flags & FLAG_COLLISION_ONLY) DynamicCOL_DeleteObject(a1);
-	else CheckThingButThenDeleteObject(a1);
+	CheckThingButThenDeleteObject((ObjectMaster*)a1);
 }
 
-void DLCObject_Action(ObjectMaster* a1)
+void DLCObject_Action(task* a1)
 {
 	DLCObjectData* data;
-	EntityData1* v1;
-	v1 = a1->Data1;
-	data = (DLCObjectData*)a1->UnknownB_ptr;
-	if (v1->InvulnerableTime > 0 || data->flags & FLAG_COLLISION_ONLY) return; //Don't continue if old action is still taking place or of the object is collision only
+	taskwk* v1;
+	v1 = a1->twp;
+	data = (DLCObjectData*)a1->awp->work.ptr[0];
+	if (v1->wtimer > 0 || data->flags & FLAG_COLLISION_ONLY) return; //Don't continue if old action is still taking place or of the object is collision only
 	if (data->flags & FLAG_COLLECTIBLE && !timer.enable) return;
 	//PrintDebug("Action!\n");
-	v1->InvulnerableTime = 60;
+	v1->wtimer = 60;
 	if (data->flags & FLAG_COLLECTIBLE)
 	{
-		v1->Action = ACTION_DISAPPEAR;
+		v1->mode = ACTION_DISAPPEAR;
 		data->collected = true;
 		timer.target_current++;
 	}
@@ -80,8 +81,8 @@ void DLCObject_Action(ObjectMaster* a1)
 				CreateHintMessage(CreateSubtitleText, timer.message_clear, 120);
 				timer.enable = false;
 				data->collected = true;
-				v1->Action = ACTION_DISAPPEAR;
-				CreateHintMessage(CreateSubtitleText, (const char**)v1->LoopData, 120);
+				v1->mode = ACTION_DISAPPEAR;
+				CreateHintMessage(CreateSubtitleText, (const char**)a1->awp->work.ptr[1], 120);
 			}
 			//Time over
 			else if (timer.time_current > timer.time_target * 3600)
@@ -94,7 +95,7 @@ void DLCObject_Action(ObjectMaster* a1)
 		else
 		{
 			HintDuration = 120;
-			CreateHintMessage(CreateSubtitleText, (const char**)v1->LoopData, 120);
+			CreateHintMessage(CreateSubtitleText, (const char**)a1->awp->work.ptr[1], 120);
 		}
 	}
 	//CHALLENGE and TIMER are mutually exclusive
@@ -104,7 +105,7 @@ void DLCObject_Action(ObjectMaster* a1)
 		timer.enable = true;
 		timer.visible = true;
 		data->collected = true;
-		v1->Action = ACTION_DISAPPEAR;
+		v1->mode = ACTION_DISAPPEAR;
 	}
 	//WARP and SOUND are mutually exclusive
 	if (data->flags & FLAG_WARP)
@@ -126,13 +127,14 @@ void DLCObject_Action(ObjectMaster* a1)
 			break;
 		//Play MLT
 		case 8:
+			//Converted to ADX
 			if (meta.adx)
 			{
 				StopMusic();
 				InitializeSoundManager();
 				PlayMusic((MusicIDs)(0x44 + data->sound)); //NIGTS_A, NIGHTS_S, NIGHTS_K
 			}
-		//Play MLT (DAT)
+			//Converted to DAT
 			else
 			{
 				PlaySound(0x567, 0, 0, 0); //SE_DL_DOWNLOAD
@@ -174,39 +176,59 @@ void DLCObject_Action(ObjectMaster* a1)
 	}
 }
 
-void DLCObject_Display(ObjectMaster* a1)
+void DLCObject_Display(task* a1)
 {
 	DLCObjectData* data;
-	EntityData1* v1;
-	v1 = a1->Data1;
-	data = (DLCObjectData*)a1->UnknownB_ptr;
+	taskwk* v1;
+	v1 = a1->twp;
 	int texid_bk = 0;
+
+	//Safety checks
+	if (a1->awp == nullptr)
+	{
+		//PrintDebug("Display sub why?\n");
+		return;
+	}
+	data = (DLCObjectData*)a1->awp->work.ptr[0];
 	if (data == nullptr)
 	{
 		//PrintDebug("Display sub why?\n");
 		return;
 	}
-	if (data->flags & FLAG_COLLECTIBLE && !timer.enable) return;
-	if (data->model == NULL || data->flags & FLAG_COLLISION_ONLY) return;
-	if (!MissedFrames && v1->Scale.x > 0.01f)
+	if (data->flags & FLAG_COLLECTIBLE && !timer.enable)
+	{
+		//PrintDebug("Collectible why?\n");
+		return;
+	}
+	if (data->model == NULL || data->flags & FLAG_COLLISION_ONLY)
+	{
+		//PrintDebug("Collision why? %f\n", v1->pos.y);
+		return;
+	}
+	if (!MissedFrames && v1->scl.x > 0.01f)
 	{
 		njControl3D_Backup();
 		BackupConstantAttr();
-		njControl3D_Add(NJD_CONTROL_3D_CONSTANT_MATERIAL | NJD_CONTROL_3D_CONSTANT_ATTR);
-		if (v1->Action == ACTION_DISAPPEAR || v1->Action == ACTION_REAPPEAR)
+		if (v1->mode == ACTION_DISAPPEAR || v1->mode == ACTION_REAPPEAR)
 		{
+			njControl3D_Add(NJD_CONTROL_3D_CONSTANT_MATERIAL | NJD_CONTROL_3D_CONSTANT_ATTR);
 			AddConstantAttr(0, NJD_FLAG_USE_ALPHA);
-			SetMaterialAndSpriteColor_Float(max(v1->Scale.x, 0), 1.0f, 1.0f, 1.0f);
+			float alpha = (max(0, 255.0f - (float)v1->wtimer)) / 255.0f;
+			//PrintDebug("Timer %f\n", alpha);
+			SetMaterialAndSpriteColor_Float(alpha, 1.0f, 1.0f, 1.0f);
 		}
-		else
-			SetMaterialAndSpriteColor_Float(1.0f, 1.0f, 1.0f, 1.0f);
 		njSetTexture(&maintexlist);
 		njPushMatrix(0);
-		njTranslateV(0, &v1->Position);
-		njRotateXYZ(0, v1->Rotation.x, v1->Rotation.y, v1->Rotation.z);
-		njScale(0, v1->Scale.x, v1->Scale.y, v1->Scale.z);
-		if (data->objecttype == TYPE_SPRITE) DrawQueueDepthBias = -47000.0f;
-		ProcessModelNode(data->model, QueuedModelFlagsB_EnableZWrite, 1.0f);
+		njTranslateV(0, &v1->pos);
+		njRotateXYZ(0, v1->ang.x, v1->ang.y, v1->ang.z);
+		njScale(0, v1->scl.x, v1->scl.y, v1->scl.z);
+		if (data->objecttype == TYPE_SPRITE)
+		{
+			DrawQueueDepthBias = -47000.0f;
+			ProcessModelNode(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
+		}
+		//DX rendering workarounds needed
+		else ProcessModelNode_AB_Wrapper(data->model, 1.0f);
 		DrawQueueDepthBias = 0.0f;
 		njPopMatrix(1u);
 		RestoreConstantAttr();
@@ -214,70 +236,104 @@ void DLCObject_Display(ObjectMaster* a1)
 	}
 }
 
-void DLCObject_Main(ObjectMaster* a1)
+void DLCObject_Main(task* a1)
 {
 	DLCObjectData* data;
-	EntityData1* v1;
-	v1 = a1->Data1;
-	data = (DLCObjectData*)a1->UnknownB_ptr;
-	if (data == nullptr)
-	{
+	taskwk* v1;
+	anywk* v2;
+	v1 = a1->twp;
+	v2 = a1->awp;
+
+	//Failsafe stuff
+	if (v2 == nullptr)
 		return;
-	}
+	data = (DLCObjectData*)a1->awp->work.ptr[0];
+	if (data == nullptr)
+		return;
+	
 	//Delete if found in wrong level
 	if (data->level != CurrentLevel || data->act != CurrentAct)
 	{
-		a1->DeleteSub(a1);
-		DeleteObjectMaster(a1);
+		a1->dest(a1);
+		DeleteObjectMaster((ObjectMaster*)a1);
 	}
+	
 	//Rotate
-	v1->Rotation.x = v1->Rotation.x + data->rotspeed_x * 16 % 65535;
-	v1->Rotation.y = v1->Rotation.y + data->rotspeed_y * 16 % 65535;
-	v1->Rotation.z = v1->Rotation.z + data->rotspeed_z * 16 % 65535;
+	v1->ang.x = v1->ang.x + data->rotspeed_x * 16 % 65535;
+	v1->ang.y = v1->ang.y + data->rotspeed_y * 16 % 65535;
+	v1->ang.z = v1->ang.z + data->rotspeed_z * 16 % 65535;
+	
 	//Trigger action
-	if (!data->collected && IsPlayerInsideSphere(&v1->Position, data->radius)) DLCObject_Action(a1);
-	else if (v1->InvulnerableTime > 0) v1->InvulnerableTime--;
+	if (!data->collected && IsPlayerInsideSphere(&v1->pos, data->radius)) DLCObject_Action(a1);
+	else if (v1->wtimer > 0) v1->wtimer--;
+	
 	//Set to reappear if not collected
-	if (!data->collected && v1->Action == ACTION_DISAPPEAR) v1->Action = ACTION_REAPPEAR;
+	if (data->flags & FLAG_TIMER)
+	{
+		if (timer.enable && v1->mode == ACTION_DISAPPEAR) v1->mode = ACTION_REAPPEAR;
+	}
+	if (data->flags & FLAG_COLLECTIBLE)
+	{
+		if (!data->collected && v1->mode == ACTION_DISAPPEAR) v1->mode = ACTION_REAPPEAR;
+	}
+	
 	//Check if appearing or disappearing
-	switch (v1->Action)
+	switch (v1->mode)
 	{
 	case ACTION_DISAPPEAR:
-		if (v1->Scale.x > 0.01f)
+		if (v1->scl.x > 0.01f)
 		{
-			v1->Scale.x = v1->Scale.x * 0.95f;
-			v1->Scale.y = v1->Scale.y * 0.95f;
-			v1->Scale.z = v1->Scale.z * 0.95f;
+			//PrintDebug("Disappear");
+			v1->scl.x = v1->scl.x * 0.95f;
+			v1->scl.y = v1->scl.y * 0.95f;
+			v1->scl.z = v1->scl.z * 0.95f;
+			if (v1->wtimer <= 255) v1->wtimer = min(255, v1->wtimer + 8);
 		}
 		break;
 	case ACTION_REAPPEAR:
-		if (v1->Scale.x < 1.0f)
+		if (v1->scl.x < 1.0f)
 		{
-			v1->Scale.x = v1->Scale.x * 1.05f;
-			v1->Scale.y = v1->Scale.y * 1.05f;
-			v1->Scale.z = v1->Scale.z * 1.05f;
+			//PrintDebug("Reappear\n");
+			v1->scl.x = v1->scl.x * 1.05f;
+			v1->scl.y = v1->scl.y * 1.05f;
+			v1->scl.z = v1->scl.z * 1.05f;
+			if (v1->wtimer >= 0) v1->wtimer = max(0, v1->wtimer - 8);
 		}
-		if (v1->Scale.x >= 1.0f)
+		else
 		{
-			v1->Scale.x = 1.0f;
-			v1->Scale.y = 1.0f;
-			v1->Scale.z = 1.0f;
-			v1->Action = ACTION_NORMAL;
+			v1->scl.x = 1.0f;
+			v1->scl.y = 1.0f;
+			v1->scl.z = 1.0f;
+			v1->mode = ACTION_NORMAL;
+			v1->wtimer = 0;
 		}
 		break;
 	}
-	//Display
-	if (data->flags & FLAG_COLLECTIBLE && !timer.enable) return;
+	
+	//Display or hide
+	if (!timer.enable)
+	{
+		if (data->flags & FLAG_TIMER || data->flags & FLAG_COLLECTIBLE)
+		{
+			//PrintDebug("Hide collectible\n");
+			v1->mode = ACTION_DISAPPEAR;
+			return;
+		}
+	}
 	DLCObject_Display(a1);
 }
 
-void DLCObject_Load(ObjectMaster* a1)
+void DLCObject_Load(ObjectMaster* ax)
 {
+	task* a1 = (task*)ax;
 	NJS_OBJECT* collision;
 	DLCObjectData* data;
-	EntityData1* v1;
-	v1 = a1->Data1;
-	data = (DLCObjectData*)a1->UnknownB_ptr;
+	taskwk* v1;
+	anywk* v2;
+	v1 = a1->twp;
+	data = (DLCObjectData*)a1->awp->work.ptr[0];
+
+	//Load message
 	if (data->flags & FLAG_MESSAGE)
 	{
 		const char** arr = new const char* [2];
@@ -301,68 +357,76 @@ void DLCObject_Load(ObjectMaster* a1)
 			break;
 		}
 		arr[1] = NULL;
-		v1->LoopData = (Loop*)arr;
+		a1->awp->work.ptr[1] = arr;
 	}
+
 	//Create collision
 	if (data->flags & FLAG_SOLID)
 	{
 		//PrintDebug("Solid\n");
 		collision = ObjectArray_GetFreeObject();
-		*(NJS_OBJECT**)&v1->CharIndex = collision;
+		v1->counter.ptr = collision;
 		collision->model = data->model->model;
 		collision->evalflags = 0x10;
-		collision->ang[0] = v1->Rotation.x;
-		collision->ang[1] = v1->Rotation.y;
-		collision->ang[2] = v1->Rotation.z;
+		collision->ang[0] = v1->ang.x;
+		collision->ang[1] = v1->ang.y;
+		collision->ang[2] = v1->ang.z;
 		collision->scl[0] = 1.0f;
 		collision->scl[1] = 1.0f;
 		collision->scl[2] = 1.0f;
-		collision->pos[0] = v1->Position.x;
-		collision->pos[1] = v1->Position.y;
-		collision->pos[2] = v1->Position.z;
-		DynamicCOL_Add((ColFlags)0x20000001, a1, collision);
+		collision->pos[0] = v1->pos.x;
+		collision->pos[1] = v1->pos.y;
+		collision->pos[2] = v1->pos.z;
+		DynamicCOL_Add((ColFlags)0x20000001, (ObjectMaster*)a1, collision);
 	}
 	else collision = nullptr;
+
 	//Create timer
 	if (data->flags & FLAG_TIMER)
 	{
 		timer.Initialize();
 		timer.target_total = data->objectid;
 	}
-	a1->MainSub = (void(__cdecl*)(ObjectMaster*))DLCObject_Main;
-	a1->DisplaySub = (void(__cdecl*)(ObjectMaster*))DLCObject_Display;
-	a1->DeleteSub = (void(__cdecl*)(ObjectMaster*))DLCObject_Delete;
+	
 	//Set action
 	if (data->collected)
 	{
-		v1->Action = ACTION_DISAPPEAR;
-		v1->Scale.x = 0.01f;
-		v1->Scale.y = 0.01f;
-		v1->Scale.z = 0.01f;
+		v1->mode = ACTION_DISAPPEAR;
+		v1->scl.x = 0.01f;
+		v1->scl.y = 0.01f;
+		v1->scl.z = 0.01f;
 	}
-	else if (v1->Action == ACTION_DISAPPEAR) v1->Action = ACTION_REAPPEAR;
+	else if (v1->mode == ACTION_DISAPPEAR) v1->mode = ACTION_REAPPEAR;
+
+	//Set subs
+	a1->exec = (void(__cdecl*)(task*))DLCObject_Main;
+	a1->disp = (void(__cdecl*)(task*))DLCObject_Display;
+	a1->dest = (void(__cdecl*)(task*))DLCObject_Delete;
 }
 
 void LoadDLCObject(DLCObjectData* data)
 {
-	ObjectMaster* obj;
-	EntityData1* ent;
+	task* obj;
+	taskwk* ent;
+	anywk* awk;
 
-	obj = LoadObject((LoadObj)2, 3, DLCObject_Load);
-	setdata_dlc.Distance = 612800.0f;
-	obj->SETData.SETData = &setdata_dlc;
+	obj = (task*)LoadObject(LoadObj_Data1, 3, DLCObject_Load);
+	obj->awp = (anywk*)_HeapAlloc(1, 48);
+	setdata_dlc.unionStatus.fRangeOut = 612800.0f;
+	obj->ocp = &setdata_dlc;
 	if (obj)
 	{
-		obj->UnknownB_ptr = data;
-		ent = obj->Data1;
-		ent->Position.x = data->x;
-		ent->Position.y = data->y;
-		ent->Position.z = data->z;
-		ent->Rotation.x = data->rot_x;
-		ent->Rotation.y = data->rot_y;
-		ent->Rotation.z = data->rot_z;
-		ent->Scale.x = data->scale_x;
-		ent->Scale.y = data->scale_y;
-		ent->Scale.z = data->scale_z;
+		awk = obj->awp;
+		awk->work.ptr[0] = data;
+		ent = (taskwk*)obj->twp;
+		ent->pos.x = data->x;
+		ent->pos.y = data->y;
+		ent->pos.z = data->z;
+		ent->ang.x = data->rot_x;
+		ent->ang.y = data->rot_y;
+		ent->ang.z = data->rot_z;
+		ent->scl.x = data->scale_x;
+		ent->scl.y = data->scale_y;
+		ent->scl.z = data->scale_z;
 	}
 }

@@ -120,23 +120,23 @@ void DLCObjectData::Load(const IniFile* ini, Uint8 id)
 	y = (float)ini->getInt(item, "Y", 0);
 	z = (float)ini->getInt(item, "Z", 0);
 	//PrintDebug("Item: %s, Level: %d\n", item.c_str(), level);
-
+	ModelInfo* modelfile = new ModelInfo(path_model);
+	ModelInfo* modelfile_flat = new ModelInfo(path_model_flat);
 	//Load models
 	switch (objecttype)
 	{
 	case TYPE_MODEL:
 	{
-		PrintDebug("Loading model: %s\n", path_model);
-		ModelInfo* modelfile = new ModelInfo(path_model);
-		NJS_OBJECT* loadedmodel = modelfile->getmodel();
-		model = loadedmodel;
+		//PrintDebug("Loading model: %s\n", path_model);
+		NJS_OBJECT* model_full = modelfile->getmodel();
+		model = model_full;
 		if (textureid != 0) model->basicdxmodel->mats[0].attr_texId = textureid;
+		//if (model_full == nullptr) PrintDebug("NULL");
 		break;
 	}
 	case TYPE_SPRITE:
 	{
-		PrintDebug("Loading model: %s\n", path_model);
-		ModelInfo* modelfile_flat = new ModelInfo(path_model_flat);
+		//PrintDebug("Loading model: %s\n", path_model);
 		NJS_OBJECT* model_flat = modelfile_flat->getmodel();
 		model = model_flat;
 		//model->basicdxmodel->mats[0].attrflags &= ~NJD_FLAG_USE_ALPHA;
@@ -147,7 +147,8 @@ void DLCObjectData::Load(const IniFile* ini, Uint8 id)
 		model = NULL;
 		break;
 	}
-	if (flags & FLAG_COLLISION_ONLY) model = NULL;
+	if (flags & FLAG_COLLISION_ONLY)
+		model = NULL;
 }
 
 void DLCObjectData::Info(Uint8 id)

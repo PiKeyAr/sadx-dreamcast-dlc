@@ -19,6 +19,7 @@ public:
 	static const char** message_timeup;
 	static const char** message_clear;
 
+	static void DeleteSub(ObjectMaster* a1);
 	static void DisplaySub(ObjectMaster* a1);
 	static void MainSub(ObjectMaster* a1);
 	static void LoadSub(ObjectMaster* a1);

@@ -43,7 +43,7 @@ NJS_COLOR checker_currentcol = {0xFFFFFF00};
 int checker_colindex = 0;
 int checker_anglespeed = 2;
 int checker_angledir = 1;
-float checker_zoomspeed = 0;
+float checker_zoomspeed = 0.15f;
 int checker_zoomdir = 1;
 
 void CheckerboardCallback(NJS_SPRITE* sprite)
@@ -62,7 +62,8 @@ void CheckerboardCallback(NJS_SPRITE* sprite)
 void TwinkleCircuitMenu_Display()
 {
 	if (CurrentLevel == LevelIDs_TwinkleCircuit || Camera_Data1 == nullptr) return;
-
+	if (CharObj2Ptrs[0] != nullptr)
+		CharObj2Ptrs[0]->IdleTime = 0;
 	switch (circuitmenu_mode)
 	{
 	case MODE_DISABLE:
@@ -112,10 +113,12 @@ void TwinkleCircuitMenu_Display()
 	njColorBlendingMode(NJD_DESTINATION_COLOR, NJD_COLOR_BLENDING_INVSRCALPHA);
 	CheckerboardSprite.p.x = (float)HorizontalResolution / 2;
 	CheckerboardSprite.p.y = (float)VerticalResolution / 2;
-	SetMaterialAndSpriteColor_Float((float)fadealpha / 255.0f, (float)checker_currentcol.argb.r / 255.0f, (float)checker_currentcol.argb.g / 255.0f, (float)checker_currentcol.argb.b / 255.0f);
+	float r = max(0, ((float)checker_currentcol.argb.r - (float)offset * 6.375f) / 255.0f);
+	float g = max(0, ((float)checker_currentcol.argb.g - (float)offset * 6.375f) / 255.0f);
+	float b = max(0, ((float)checker_currentcol.argb.b - (float)offset * 6.375f) / 255.0f);
+	SetMaterialAndSpriteColor_Float((float)fadealpha / 255.0f, r, g, b);
 	DrawModelCallback_QueueSprite(CheckerboardCallback, &CheckerboardSprite, 44000.0f, (QueuedModelFlagsB)4);
-	CheckerboardSprite.ang += checker_anglespeed;
-
+	
 	//Draw background rectangle
 	BackupDebugFontSettings();
 	//Character grid is 40x30 for 4:3 resolutions, each character is 16x16 for 640x480 at scale 16
@@ -175,12 +178,23 @@ void TwinkleCircuitMenu_Display()
 	}
 
 	//Apply checkerboard rotation and zoom effects
-	CheckerboardSprite.sx += checker_zoomdir * 0.15f;
-	CheckerboardSprite.sy += checker_zoomdir * 0.15f;
-	if (CheckerboardSprite.sx > 60 || CheckerboardSprite.sx < 48) checker_zoomdir = -checker_zoomdir;
+	if (checker_zoomspeed > 0)
+	{
+		CheckerboardSprite.sx += min(1.0f, checker_zoomspeed);
+		CheckerboardSprite.sy += min(1.0f, checker_zoomspeed);
+	
+	}
+	else
+	{
+		CheckerboardSprite.sx += max(-1.0f, checker_zoomspeed);
+		CheckerboardSprite.sy += max(-1.0f, checker_zoomspeed);
+	}
+	checker_zoomspeed += 0.02f * checker_zoomdir;
+	if (abs(checker_zoomspeed) > 1.5f)
+		checker_zoomdir = -checker_zoomdir;
 	checker_anglespeed += checker_angledir;
 	if (checker_anglespeed > 160 || checker_anglespeed < -160) checker_angledir = -checker_angledir;
-
+	CheckerboardSprite.ang += checker_anglespeed;
 	RestoreDebugFontSettings();
 }
 

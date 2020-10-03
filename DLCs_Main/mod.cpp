@@ -8,13 +8,14 @@
 #include <ModelInfo.h>
 
 //TODO: Write out save files
-//TODO: MLT sound/music conversion to DAT/ADX
-//TODO: XMAS98 model
-//TODO: Kadomatsu model
-//TODO: AT&T1 model
-//TODO: AT&T goal thing
+//TODO: Seasonal stuff
+//TODO: DX asset compatibility
+//TODO: DX rendering workarounds
 //TODO: Trigger for circuit menu
 //TODO: DLC selection menu
+
+unsigned char checker_texturedata[6144];
+NJS_TEXINFO checker_texinfo;
 
 void TwinkleCircuitMenu_Display();
 void SetHudColorAndTextureNum_Italic(int n, NJS_COLOR color);
@@ -23,7 +24,6 @@ void BackupDebugFontSettings();
 void RestoreDebugFontSettings();
 void TwinkleCircuitMenu_Input();
 
-NJS_OBJECT* poster_model;
 std::string DownloadNameStrings[16];
 const char* path_model;
 const char* path_model_flat;
@@ -37,11 +37,12 @@ NJS_TEXLIST maintexlist = {arrayptrandlength(maintexnames)};
 
 NJS_TEXNAME checker_textures[1];
 NJS_TEXLIST checker_texlist = {arrayptrandlength(checker_textures)};
+NJS_TEXMEMLIST checker_texmemlist;
 
 std::string path_dlc_textures;
 
-SoundFileInfo sndinfo = {8, "DOWNLOAD"};
-SoundList sndlist = {1, &sndinfo };
+SoundFileInfo sndinfo = { 8, "DOWNLOAD" };
+SoundList sndlist = { 1, &sndinfo };
 
 bool FileExists(const char* filename)
 {
@@ -51,9 +52,19 @@ bool FileExists(const char* filename)
 
 signed int __cdecl InitDownload()
 {
+	//Load checkerboard texture
+	checker_textures[0].texaddr = (Uint32)TexMemList_PixelFormat(&checker_texinfo, 237542221);
+
+	//Load timer
+	if (!timer.loaded)
+	{
+		//PrintDebug("Reloading timer\n");
+		timer.Initialize();
+	}
+
 	//Load textures
 	LoadPVM(path_dlc_textures.c_str(), &maintexlist);
-	LoadPVM("DLC\\checker", &checker_texlist);
+
 	//Load objects
 	for (int i = 0; i < 256; i++)
 	{
@@ -70,14 +81,20 @@ signed int __cdecl InitDownload()
 	if (meta.has_mlt && !meta.adx)
 	{
 		std::string str = "SYSTEM\\DLC\\" + DownloadNameStrings[DownloadID] + "\\" + DownloadNameStrings[DownloadID] + ".DAT";
-		PrintDebug("Loading soundbank: %s\n", str.c_str());
+		//PrintDebug("Loading soundbank: %s\n", str.c_str());
 		SoundBankMemoryData[8] = LoadSoundBank(str.c_str(), 1);
 	}
 
 	return 1;
 }
 
-DataPointer(int, LoadingOrWhatever, 0x3B28114);
+static void PlayLevelMusic_r(int a1);
+static Trampoline PlayLevelMusic_t(0x425800, 0x42580A, PlayLevelMusic_r);
+static void __cdecl PlayLevelMusic_r(int a1)
+{
+	auto original = reinterpret_cast<decltype(PlayLevelMusic_r)*>(PlayLevelMusic_t.Target());
+	if (CurrentSong != 68 && CurrentSong != 69 && CurrentSong != 70) original(a1);
+}
 
 extern "C"
 {
@@ -91,6 +108,18 @@ extern "C"
 				L"Dreamcast DLCs mod error: Mod Loader out of date", MB_OK | MB_ICONERROR);
 			return;
 		}
+
+		//Initialize checkerboard texture for circuit menu
+		checker_texturedata[0] = 0xAA;
+		checker_texturedata[1] = 0x52;
+		checker_texturedata[2] = 0xC3;
+		checker_texturedata[3] = 0x18;
+		checker_texturedata[4] = 0xC3;
+		checker_texturedata[5] = 0x18;
+		checker_texturedata[6] = 0xAA;
+		checker_texturedata[7] = 0x52;
+		njSetTextureInfo(&checker_texinfo, (Uint16*)&checker_texturedata, NJD_TEXFMT_VQ | NJD_TEXFMT_RGB_565, 128, 128);
+		njSetTextureNameEx(checker_textures, &checker_texinfo, (void*)0xFFFFFFFE, NJD_TEXATTR_GLOBALINDEX | NJD_TEXATTR_TYPE_MEMORY);
 
 		//Write SADX functions
 		WriteJump((void*)0x4570B0, InitDownload);
@@ -116,15 +145,12 @@ extern "C"
 		std::string path_dlc_ini = path_download + DownloadNameStrings[DownloadID] + ".ini";
 		path_model = helperFunctions.GetReplaceablePath((path_download + DownloadNameStrings[DownloadID] + ".sa1mdl").c_str());
 		path_model_flat = helperFunctions.GetReplaceablePath("SYSTEM\\dlc\\poster.sa1mdl");
-		std::string path_dlc_sound = "SYSTEM\\SoundData\\SE\\" + DownloadNameStrings[DownloadID] + ".dat";
+		std::string path_dlc_sound = "SYSTEM\\DLC\\" + DownloadNameStrings[DownloadID] + "\\" + DownloadNameStrings[DownloadID] + ".DAT";
 		path_dlc_textures = "DLC\\" + DownloadNameStrings[DownloadID] + "\\" + DownloadNameStrings[DownloadID];
 		const std::string s_download_ini(helperFunctions.GetReplaceablePath(path_dlc_ini.c_str()));
 		PrintDebug("Path: %s\n", s_download_ini.c_str());
 
 		ModelInfo* mdl = new ModelInfo(path_model_flat);
-		poster_model = mdl->getmodel();
-		poster_model->basicdxmodel->mats[0].attr_texId = 2;
-		poster_model->basicdxmodel->mats[0].diffuse.color = 0xFF00FFFF;
 
 		//Load metadata and items
 		ini_download = new IniFile(s_download_ini);
@@ -136,8 +162,20 @@ extern "C"
 		//Check for DAT soundbanks and enable ADX music
 		if (meta.has_mlt)
 		{
-			PrintDebug("Checking file %s", path_dlc_sound.c_str());
-			if (!FileExists(path_dlc_sound.c_str())) meta.adx = true;
+			//PrintDebug("Checking file %s\n", helperFunctions.GetReplaceablePath(path_dlc_sound.c_str()));
+			if (!FileExists(helperFunctions.GetReplaceablePath(path_dlc_sound.c_str())))
+			{
+				std::string file1 = "SYSTEM\\DLC\\" + DownloadNameStrings[DownloadID] + "\\01.ADX";
+				std::string file2 = "SYSTEM\\DLC\\" + DownloadNameStrings[DownloadID] + "\\02.ADX";
+				std::string file3 = "SYSTEM\\DLC\\" + DownloadNameStrings[DownloadID] + "\\03.ADX";
+				meta.adx = true;
+				helperFunctions.ReplaceFile("SYSTEM\\SoundData\\BGM\\WMA\\NIGHTS_A.WMA", file1.c_str());
+				helperFunctions.ReplaceFile("SYSTEM\\SoundData\\BGM\\WMA\\NIGHTS_K.WMA", file2.c_str());
+				helperFunctions.ReplaceFile("SYSTEM\\SoundData\\BGM\\WMA\\NIGHTS_S.WMA", file3.c_str());
+				MusicList[68].Loop = true;
+				MusicList[69].Loop = true;
+				MusicList[70].Loop = true;
+			}
 			else sndinfo.Filename = DownloadNameStrings[DownloadID].c_str();
 		}
 
@@ -149,15 +187,17 @@ extern "C"
 			ADV00SS01_OBJECTS[28]->pos[1] = 20; //Invisible collision in station area (Famitsu challenge)
 			//PrintDebug("SADX layout detected\n");
 		}
+		MusicList[87].Loop = true; //Make Super Sonic Racing loop
 	}
 
 	__declspec(dllexport) void __cdecl OnFrame()
 	{
-		//CircuitMenu_Display();
+		//TwinkleCircuitMenu_Display();
 	}
 
 	__declspec(dllexport) void __cdecl OnInput()
 	{
+		//if (ControllerPointers[0]->PressedButtons & Buttons_A) PlaySound(0x567, 0, 0, 0); //SE_DL_DOWNLOAD
 		//TwinkleCircuitMenu_Input();
 		if (IsGamePaused() && ControllerPointers[0]->PressedButtons & Buttons_Y)
 		{

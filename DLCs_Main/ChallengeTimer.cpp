@@ -60,10 +60,11 @@ void ChallengeTimer::DisplaySub(ObjectMaster* a1)
 	{
 		if (time_current % 4 == 0) highlightchar++;
 		if (highlightchar > 7) highlightchar = 0;
+		else if (!enable) highlightchar = 1;
 		SetDebugFontColor(0x03F0F049);
 		DisplayDebugString(NJM_LOCATION(RightColumn - 9, BottomLine - 7), "[TARGET]");
 		//Count display
-		if (timer_flip)
+		if (timer_flip && enable)
 		{
 			SetDebugFontColor(0x034AEE66);
 			DisplayDebugString(NJM_LOCATION(RightColumn - 4, BottomLine - 6), "/");
@@ -110,11 +111,16 @@ void ChallengeTimer::MainSub(ObjectMaster* a1)
 	if (visible) DisplaySub(a1);
 }
 
+void ChallengeTimer::DeleteSub(ObjectMaster* a1)
+{
+	loaded = false;
+}
+
 void ChallengeTimer::LoadSub(ObjectMaster* a1)
 {
 	a1->MainSub = (void(__cdecl*)(ObjectMaster*))MainSub;
 	a1->DisplaySub = (void(__cdecl*)(ObjectMaster*))DisplaySub;
-	a1->DeleteSub = (void(__cdecl*)(ObjectMaster*))nullsub;
+	a1->DeleteSub = (void(__cdecl*)(ObjectMaster*))DeleteSub;
 }
 
 void ChallengeTimer::Initialize()
