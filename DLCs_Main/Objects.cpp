@@ -14,6 +14,8 @@ list <int> ::iterator it;
 ChallengeTimer timer;
 OBJ_CONDITION setdata_dlc;
 
+void TwinkleCircuitMenu_Init();
+
 struct DXCompatibilityThing
 {
 	char level;
@@ -53,6 +55,7 @@ void DLCObject_Delete(task* a1)
 		data = (DLCObjectData*)a1->awp->work.ptr[0];
 		if (data != nullptr)
 		{
+			data->loaded = false;
 			//Delete message
 			if (data->flags & FLAG_MESSAGE)
 			{
@@ -78,7 +81,6 @@ void DLCObject_Action(task* a1)
 	data = (DLCObjectData*)a1->awp->work.ptr[0];
 	if (v1->wtimer > 0 || data->flags & FLAG_COLLISION_ONLY) return; //Don't continue if old action is still taking place or of the object is collision only
 	if (data->flags & FLAG_COLLECTIBLE && !timer.enable) return;
-	//PrintDebug("Action!\n");
 	v1->wtimer = 60;
 	if (data->flags & FLAG_COLLECTIBLE)
 	{
@@ -132,9 +134,16 @@ void DLCObject_Action(task* a1)
 	//WARP and SOUND are mutually exclusive
 	if (data->flags & FLAG_WARP)
 	{
-		NextLevel = data->warplevel;
-		NextAct = data->sound;
-		CutsceneMode = 3;
+		if (EnableCircuitMenu && data->warplevel == LevelIDs_TwinkleCircuit)
+		{
+			TwinkleCircuitMenu_Init();
+		}
+		else
+		{
+			NextLevel = data->warplevel;
+			NextAct = data->sound;
+			CutsceneMode = 3;
+		}
 	}
 	else if (data->flags & FLAG_SOUND)
 	{
@@ -145,7 +154,7 @@ void DLCObject_Action(task* a1)
 		case 15:
 			StopMusic();
 			InitializeSoundManager();
-			PlayMusic((MusicIDs)data->sound);
+			if (data->sound != 110) PlayMusic((MusicIDs)data->sound); //110 is used on DC to stop ADX music, but SADX uses it for "Mission Start"
 			break;
 		//Play MLT
 		case 8:
@@ -244,9 +253,14 @@ void DLCObject_Display(task* a1)
 				AddConstantAttr(0, NJD_FLAG_USE_ALPHA);
 				float alpha = (max(0, 255.0f - (float)v1->wtimer)) / 255.0f;
 				SetMaterialAndSpriteColor_Float(alpha, 1.0f, 1.0f, 1.0f);
+				DrawQueueDepthBias = -47000.0f;
+				ProcessModelNode(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
 			}
-			DrawQueueDepthBias = -47000.0f;
-			ProcessModelNode(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
+			else
+			{
+				if (meta.rendermode != 0) ProcessModelNode(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
+				else ProcessModelNode_AB_Wrapper(data->model, v1->scl.x);
+			}
 		}
 		else
 		{
@@ -298,8 +312,9 @@ void DLCObject_Main(task* a1)
 		return;
 	
 	//Delete if found in wrong level
-	if (data->level != CurrentLevel || data->act != CurrentAct)
+	if (data->level != CurrentLevel)
 	{
+		if ((data->level == LevelIDs_TwinkleCircuit && !SuperSonicRacing) || data->act != CurrentAct)
 		a1->dest(a1);
 		DeleteObjectMaster((ObjectMaster*)a1);
 	}
@@ -379,6 +394,9 @@ void DLCObject_Load(ObjectMaster* ax)
 	v1 = a1->twp;
 	data = (DLCObjectData*)a1->awp->work.ptr[0];
 
+	//Quit if the object is already loaded
+	if (data->loaded) return;
+
 	//Load message
 	if (data->flags & FLAG_MESSAGE)
 	{
@@ -417,13 +435,13 @@ void DLCObject_Load(ObjectMaster* ax)
 		collision->ang[0] = v1->ang.x;
 		collision->ang[1] = v1->ang.y;
 		collision->ang[2] = v1->ang.z;
-		collision->scl[0] = 1.0f;
-		collision->scl[1] = 1.0f;
-		collision->scl[2] = 1.0f;
+		collision->scl[0] = v1->scl.x;
+		collision->scl[1] = v1->scl.y;
+		collision->scl[2] = v1->scl.z;
 		collision->pos[0] = v1->pos.x;
 		collision->pos[1] = v1->pos.y;
 		collision->pos[2] = v1->pos.z;
-		DynamicCOL_Add((ColFlags)0x20000001, (ObjectMaster*)a1, collision);
+		DynamicCOL_Add((ColFlags)0x10001001, (ObjectMaster*)a1, collision);
 	}
 	else collision = nullptr;
 
@@ -448,6 +466,8 @@ void DLCObject_Load(ObjectMaster* ax)
 	a1->exec = (void(__cdecl*)(task*))DLCObject_Main;
 	a1->disp = (void(__cdecl*)(task*))DLCObject_Display;
 	a1->dest = (void(__cdecl*)(task*))DLCObject_Delete;
+
+	data->loaded = true;
 }
 
 void LoadDLCObject(DLCObjectData* data)

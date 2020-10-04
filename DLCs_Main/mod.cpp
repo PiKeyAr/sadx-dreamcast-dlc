@@ -7,14 +7,18 @@
 #include "SADXData.h"
 #include <ModelInfo.h>
 #include <Trampoline.h>
+#include "SegaVoice.h"
 
+//TODO: Rendering settings for flat model
 //TODO: Write out save files
-//TODO: Config and seasonal stuff
-//TODO: Trigger for circuit menu
 //TODO: DLC selection menu
 
 unsigned char checker_texturedata[6144];
 NJS_TEXINFO checker_texinfo;
+
+_SYSTEMTIME CurrentTime;
+static int MonthlyDLCs[12][2];
+std::string DLCMode;
 
 void TwinkleCircuitMenu_Display();
 void SetHudColorAndTextureNum_Italic(int n, NJS_COLOR color);
@@ -22,13 +26,43 @@ void njDrawQuadTexture_Italic(NJS_QUAD_TEXTURE* points, float scale);
 void BackupDebugFontSettings();
 void RestoreDebugFontSettings();
 void TwinkleCircuitMenu_Input();
+void MenuVoice_Init();
+void MenuVoice_OnFrame();
+
+struct dlcKeyInfo
+{
+	const char* dlc1name;
+	const char* dlc2name;
+	int dlc1id;
+	int dlc2id;
+};
+
+static const dlcKeyInfo dlcKeyNames[12] =
+{
+	{"Jan1DLC", "Jan2DLC", 10, 9},
+	{"Feb1DLC", "Feb2DLC", 3, 3},
+	{"Mar1DLC", "Mar2DLC", 6, 6},
+	{"Apr1DLC", "Apr2DLC", 0, 0},
+	{"May1DLC", "May2DLC", 0, 0},
+	{"Jun1DLC", "Jun2DLC", 8, 8},
+	{"Jul1DLC", "Jul2DLC", 7, 7},
+	{"Aug1DLC", "Aug2DLC", -1, -1},
+	{"Sep1DLC", "Sep2DLC", 5, 5},
+	{"Oct1DLC", "Oct2DLC", 4, 4},
+	{"Nov1DLC", "Nov2DLC", 8, 8},
+	{"Dec1DLC", "Dec2DLC", 2, 1},
+};
 
 std::string DownloadNameStrings[16];
 const char* path_model;
 const char* path_model_flat;
 DLCMetadata meta;
 const IniFile* ini_download;
-char DownloadID = 0;
+Uint8 DownloadID = 0;
+bool EnableCircuitMenu = false;
+bool SuperSonicRacing = true;
+bool DisableDuringStory = true;
+
 void LoadDLCObject(DLCObjectData* data);
 
 NJS_TEXNAME maintexnames[32];
@@ -51,6 +85,9 @@ bool FileExists(const char* filename)
 
 signed int __cdecl InitDownload()
 {
+	//Exit if story in not completed
+	if (DisableDuringStory && !IsAdventureComplete(GetCharacterSelection())) return 1;
+
 	//Exit if not the right character
 	switch (CurrentCharacter)
 	{
@@ -91,7 +128,12 @@ signed int __cdecl InitDownload()
 	for (int i = 0; i < 256; i++)
 	{
 		if (meta.items[i].level == 0 && meta.items[i].act == 0) break;
-		if (meta.items[i].level != CurrentLevel || meta.items[i].act != CurrentAct) continue;
+		if (meta.items[i].level == CurrentLevel && CurrentLevel == LevelIDs_TwinkleCircuit && SuperSonicRacing)
+		{
+			LoadDLCObject(&meta.items[i]);
+			//PrintDebug("SUPER");
+		}
+		else if (meta.items[i].level != CurrentLevel || meta.items[i].act != CurrentAct) continue;
 		else
 		{
 			//PrintDebug("Object %d, Level: %d, Act: %d\n", i, meta.items[i].level, meta.items[i].act);
@@ -148,7 +190,55 @@ extern "C"
 		WriteCall((void*)0x793D06, SetHudColorAndTextureNum_Italic);
 		WriteCall((void*)0x793BCC, njDrawQuadTexture_Italic);
 
-		//Config stuff
+		//Mod config stuff
+		const std::string s_path(path);
+		const std::string s_config_ini(s_path + "\\config.ini");
+		const IniFile* const config = new IniFile(s_config_ini);
+		MenuVoiceMode = config->getInt("General settings", "MenuVoiceThing", -1);
+		SEGAVoice = config->getBool("General settings", "SegaVoice", false);
+		MenuVoice_Init();
+		GetLocalTime(&CurrentTime);
+		srand(CurrentTime.wSecond);
+		EnableCircuitMenu = config->getBool("General settings", "CircuitMenu", true);
+		SuperSonicRacing = config->getBool("General settings", "SuperSonicRacing", true);
+		DisableDuringStory = config->getBool("General settings", "DisableDuringStory", true);
+		//Seasonal stuff
+		DLCMode = config->getString("General settings", "DLCMode", "Random");
+
+		for (unsigned int i = 0; i < 12; i++)
+		{
+			MonthlyDLCs[i][0] = config->getInt("Seasonal DLC settings",
+				dlcKeyNames[i].dlc1name, dlcKeyNames[i].dlc1id);
+			MonthlyDLCs[i][1] = config->getInt("Seasonal DLC settings",
+				dlcKeyNames[i].dlc2name, dlcKeyNames[i].dlc2id);
+		}
+
+		//DLC modes
+		if (DLCMode == "Single")
+		{
+			DownloadID = config->getInt("General settings", "DLCSingle", 0);
+		}
+		else if (DLCMode == "Random")
+		{
+			DownloadID = rand() % 10;
+		}
+		else if (DLCMode == "Seasonal")
+		{
+			//NOTE: wMonth is 1-12. Subtract 1 for the array index.
+			if (CurrentTime.wDay <= 15)
+			{
+				//First half of the month
+				DownloadID = MonthlyDLCs[CurrentTime.wMonth - 1][0];
+			}
+			else
+			{
+				//Second half of the month
+				DownloadID = MonthlyDLCs[CurrentTime.wMonth - 1][1];
+			}
+		}
+		delete config;
+
+		//DLC config stuff
 		const std::string s_files_ini(helperFunctions.GetReplaceablePath("SYSTEM\\dlc\\files.ini"));
 		const IniFile *ini_files = new IniFile(s_files_ini);
 		for (int i = 0; i < 16; i++)
@@ -219,13 +309,14 @@ extern "C"
 
 	__declspec(dllexport) void __cdecl OnFrame()
 	{
-		//TwinkleCircuitMenu_Display();
+		if (MenuVoiceMode != -1) MenuVoice_OnFrame();
+		if (EnableCircuitMenu) TwinkleCircuitMenu_Display();
 	}
 
 	__declspec(dllexport) void __cdecl OnInput()
 	{
 		//if (ControllerPointers[0]->PressedButtons & Buttons_A) PlaySound(0x567, 0, 0, 0); //SE_DL_DOWNLOAD
-		//TwinkleCircuitMenu_Input();
+		if (EnableCircuitMenu) TwinkleCircuitMenu_Input();
 		if (IsGamePaused() && ControllerPointers[0]->PressedButtons & Buttons_Y)
 		{
 			//PrintDebug("Challenge reset\n");

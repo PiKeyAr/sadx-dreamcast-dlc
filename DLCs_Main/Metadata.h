@@ -66,6 +66,7 @@ public:
 	
 	NJS_OBJECT* model;
 	bool collected;
+	bool loaded;
 
 	void Load(const IniFile* ini, Uint8 id);
 	void Info(Uint8 id);
@@ -108,3 +109,5 @@ extern const char* path_model;
 extern const char* path_model_flat;
 extern NJS_OBJECT* poster_model;
 extern NJS_TEXLIST checker_texlist;
+extern bool EnableCircuitMenu;
+extern bool SuperSonicRacing;

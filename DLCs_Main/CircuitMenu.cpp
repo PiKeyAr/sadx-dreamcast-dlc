@@ -198,17 +198,16 @@ void TwinkleCircuitMenu_Display()
 	RestoreDebugFontSettings();
 }
 
+void TwinkleCircuitMenu_Init()
+{
+	circuitmenu_mode = MODE_ENABLE;
+	PlayMusic(MusicIDs_ssracing);
+	stickpress = true;
+	PlaySound(21, 0, 0, 0);
+}
+
 void TwinkleCircuitMenu_Input()
 {
-	//Enable
-	if (ControllerPointers[0]->PressedButtons & Buttons_Y)
-	{
-		circuitmenu_mode = MODE_ENABLE;
-		PlayMusic(MusicIDs_ssracing);
-		stickpress = true;
-		PlaySound(21, 0, 0, 0);
-	}
-
 	//Controls
 	if (circuitmenu_mode == MODE_ENABLE)
 	{

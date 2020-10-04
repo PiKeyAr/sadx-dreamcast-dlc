@@ -29,6 +29,8 @@ static int GetVoiceNumber(int value)
 
 static void PlaySegaSonicTeamVoice()
 {
+	//Code by SonicFreak94
+
 	if (SegaLogo_Frames == 1 && SoundManager_ptr == nullptr)
 	{
 		SoundManager_Load(LoadObject((LoadObj)0, 1, SoundManager_Load));
@@ -66,6 +68,7 @@ static void PlaySegaSonicTeamVoice()
 
 void __declspec(naked) PlaySegaSonicTeamVoice_asm()
 {
+	//Code by SonicFreak94
 	__asm
 	{
 		call DisplayLogoScreen
