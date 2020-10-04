@@ -39,6 +39,9 @@
     <ClCompile Include="SADXData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SegaVoice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -57,6 +60,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CircuitMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SegaVoice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
