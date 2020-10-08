@@ -12,7 +12,10 @@ std::string DLCMetadata::title;
 std::string DLCMetadata::description;
 std::string DLCMetadata::appname;
 Uint32 DLCMetadata::dlc_id;
-Uint8 DLCMetadata::rendermode;
+Uint8 DLCMetadata::rendermode_model;
+Uint8 DLCMetadata::rendermode_flat;
+float DLCMetadata::depth_flat;
+float DLCMetadata::depth_model;
 bool DLCMetadata::has_mlt;
 bool DLCMetadata::chars_sonic;
 bool DLCMetadata::chars_tails;
@@ -30,6 +33,8 @@ std::string DLCMetadata::EnglishStrings[16];
 std::string DLCMetadata::FrenchStrings[16];
 std::string DLCMetadata::SpanishStrings[16];
 std::string DLCMetadata::GermanStrings[16];
+
+void AddWhiteDiffuseMaterial(NJS_MATERIAL* material);
 
 std::string UTF8ToANSI(std::string s, UINT codepage)
 {
@@ -132,6 +137,11 @@ void DLCObjectData::Load(const IniFile* ini, Uint8 id)
 		NJS_OBJECT* model_full = modelfile->getmodel();
 		model = model_full;
 		if (textureid != 0) model->basicdxmodel->mats[0].attr_texId = textureid;
+		if (model->basicdxmodel->mats[0].attrflags & NJD_FLAG_IGNORE_LIGHT)
+		{
+			for (int u = 1; u < model->basicdxmodel->nbMat; u++)
+				AddWhiteDiffuseMaterial(&model->basicdxmodel->mats[u]);
+		}
 		//if (model_full == nullptr) PrintDebug("NULL");
 		break;
 	}

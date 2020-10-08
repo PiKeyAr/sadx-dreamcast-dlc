@@ -86,7 +86,10 @@ public:
 	static bool chars_e102;
 	static bool chars_amy;
 	static bool chars_big;
-	static Uint8 rendermode;
+	static Uint8 rendermode_model;
+	static Uint8 rendermode_flat;
+	static float depth_model;
+	static float depth_flat;
 	static Uint8 whatever;
 	static DLCRegionLocks region;
 	static DLCObjectData items[256];

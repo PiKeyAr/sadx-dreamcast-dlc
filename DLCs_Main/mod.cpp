@@ -5,9 +5,9 @@
 #include "Metadata.h"
 #include "ChallengeTimer.h"
 #include "SADXData.h"
-#include <ModelInfo.h>
 #include <Trampoline.h>
 #include "SegaVoice.h"
+#include "lanternapi.h"
 
 //TODO: Rendering settings for flat model
 //TODO: Write out save files
@@ -28,6 +28,7 @@ void RestoreDebugFontSettings();
 void TwinkleCircuitMenu_Input();
 void MenuVoice_Init();
 void MenuVoice_OnFrame();
+bool CheckLevelAct(int level, int act);
 
 struct dlcKeyInfo
 {
@@ -128,13 +129,7 @@ signed int __cdecl InitDownload()
 	for (int i = 0; i < 256; i++)
 	{
 		if (meta.items[i].level == 0 && meta.items[i].act == 0) break;
-		if (meta.items[i].level == CurrentLevel && CurrentLevel == LevelIDs_TwinkleCircuit && SuperSonicRacing)
-		{
-			LoadDLCObject(&meta.items[i]);
-			//PrintDebug("SUPER");
-		}
-		else if (meta.items[i].level != CurrentLevel || meta.items[i].act != CurrentAct) continue;
-		else
+		if (!CheckLevelAct(meta.items[i].level, meta.items[i].act)) continue;
 		{
 			//PrintDebug("Object %d, Level: %d, Act: %d\n", i, meta.items[i].level, meta.items[i].act);
 			LoadDLCObject(&meta.items[i]);
@@ -173,6 +168,12 @@ extern "C"
 			return;
 		}
 
+		//Lighting
+		HMODULE LanternDLL = GetModuleHandle(L"sadx-dc-lighting");
+		if (LanternDLL != nullptr) DLLLoaded_Lantern = true;
+		material_register_ptr = (void(*)(const NJS_MATERIAL* const* materials, size_t length, lantern_material_cb callback))GetProcAddress(LanternDLL, "material_register");
+		set_diffuse_ptr = (void(*)(int32_t, bool))GetProcAddress(LanternDLL, "set_diffuse");
+
 		//Initialize checkerboard texture for circuit menu
 		checker_texturedata[0] = 0xAA;
 		checker_texturedata[1] = 0x52;
@@ -202,6 +203,7 @@ extern "C"
 		EnableCircuitMenu = config->getBool("General settings", "CircuitMenu", true);
 		SuperSonicRacing = config->getBool("General settings", "SuperSonicRacing", true);
 		DisableDuringStory = config->getBool("General settings", "DisableDuringStory", true);
+
 		//Seasonal stuff
 		DLCMode = config->getString("General settings", "DLCMode", "Random");
 
@@ -248,9 +250,10 @@ extern "C"
 			{
 				//PrintDebug("File: %s\n", ini_files->getString("", keyname, "Ass").c_str());
 				DownloadNameStrings[i] = ini_files->getString("", keyname, "Ass");
-				PrintDebug("F: %s\n", DownloadNameStrings[i].c_str());
+				//PrintDebug("F: %s\n", DownloadNameStrings[i].c_str());
 			}
 		}
+		delete ini_files;
 
 		//Set paths
 		std::string path_download = "SYSTEM\\dlc\\" + DownloadNameStrings[DownloadID] + "\\";
@@ -260,14 +263,18 @@ extern "C"
 		std::string path_dlc_sound = "SYSTEM\\DLC\\" + DownloadNameStrings[DownloadID] + "\\" + DownloadNameStrings[DownloadID] + ".DAT";
 		path_dlc_textures = "DLC\\" + DownloadNameStrings[DownloadID] + "\\" + DownloadNameStrings[DownloadID];
 		const std::string s_download_ini(helperFunctions.GetReplaceablePath(path_dlc_ini.c_str()));
-		PrintDebug("Path: %s\n", s_download_ini.c_str());
+		//PrintDebug("Path: %s\n", s_download_ini.c_str());
 
 		//Tell which function to use when rendering models
-		for (int i = 0; i < 5; i++)
-		{
-			std::string renderinfo = path_download + "RENDER_" + std::to_string(i);
-			if (FileExists(helperFunctions.GetReplaceablePath(renderinfo.c_str()))) meta.rendermode = i;
-		}
+		std::string renderinfo_file = path_download +"renderinfo.ini";
+		//PrintDebug("Where: %s\n", renderinfo_file.c_str());
+		const IniFile* renderinfo = new IniFile(helperFunctions.GetReplaceablePath(renderinfo_file.c_str()));
+		meta.rendermode_model = renderinfo->getInt("", "ModelFunction", 0);
+		//PrintDebug("%d\n", renderinfo->getInt("", "ModelFunction", 0));
+		meta.rendermode_flat = renderinfo->getInt("", "FlatFunction", 0);
+		meta.depth_model = renderinfo->getFloat("", "ModelDepth", 0);
+		meta.depth_flat = renderinfo->getFloat("", "FlatDepth", 0);
+		delete renderinfo;
 
 		//Load metadata and items
 		ini_download = new IniFile(s_download_ini);
@@ -275,6 +282,7 @@ extern "C"
 		for (int u = 0; u < 256; u++)
 			if (ini_download->hasGroup("Item " + std::to_string(u)))
 				meta.items[u].Load(ini_download, u);
+		delete ini_download;
 
 		//Check for DAT soundbanks and enable ADX music
 		if (meta.has_mlt)

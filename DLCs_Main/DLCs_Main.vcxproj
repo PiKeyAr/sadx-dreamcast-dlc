@@ -61,8 +61,9 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectDir)..\bin\ModLoaderCommon.lib;$(ProjectDir)..\bin\libmodutils.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\bin\ModLoaderCommon.lib;$(ProjectDir)..\bin\libmodutils.lib;$(SolutionDir)sadx-dc-lighting.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
+      <DelayLoadDLLs>sadx-dc-lighting.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -75,13 +76,15 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(ProjectDir)..\bin\ModLoaderCommon.lib;$(ProjectDir)..\bin\libmodutils.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\bin\ModLoaderCommon.lib;$(ProjectDir)..\bin\libmodutils.lib;$(SolutionDir)sadx-dc-lighting.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
+      <DelayLoadDLLs>sadx-dc-lighting.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ChallengeTimer.cpp" />
     <ClCompile Include="CircuitMenu.cpp" />
+    <ClCompile Include="Lantern.cpp" />
     <ClCompile Include="SADXData.cpp" />
     <ClCompile Include="DebugFont.cpp" />
     <ClCompile Include="Metadata.cpp" />
@@ -96,6 +99,7 @@
   <ItemGroup>
     <ClInclude Include="ChallengeTimer.h" />
     <ClInclude Include="CircuitMenu.h" />
+    <ClInclude Include="lanternapi.h" />
     <ClInclude Include="Metadata.h" />
     <ClInclude Include="SADXData.h" />
     <ClInclude Include="SegaVoice.h" />

@@ -53,6 +53,7 @@ void DLCObject_Delete(task* a1)
 	if (a1->awp != nullptr)
 	{
 		data = (DLCObjectData*)a1->awp->work.ptr[0];
+		//PrintDebug("Deleting data at %f, %f, %f\n", data->x, data->y, data->z);
 		if (data != nullptr)
 		{
 			data->loaded = false;
@@ -61,15 +62,18 @@ void DLCObject_Delete(task* a1)
 			{
 				//PrintDebug("Delete message\n");
 				delete[] a1->awp->work.ptr[1];
-				a1->awp->work.ptr[1] = NULL;
+				a1->awp->work.ptr[1] = nullptr;
 			}
 			//Delete collision
+			//PrintDebug("Delete collision\n");
 			if (data->flags & FLAG_SOLID || data->flags & FLAG_COLLISION_ONLY) DynamicCOL_DeleteObject((ObjectMaster*)a1);
-			a1->awp->work.ptr[0] = NULL;
+			//PrintDebug("Data nullptr\n");
+			a1->awp->work.ptr[0] = nullptr;
 		}
 		_HeapFree(a1->awp);
-		a1->awp = NULL;
+		a1->awp = nullptr;
 	}
+	//PrintDebug("Calling CheckThing\n");
 	CheckThingButThenDeleteObject((ObjectMaster*)a1);
 }
 
@@ -258,13 +262,16 @@ void DLCObject_Display(task* a1)
 			}
 			else
 			{
-				if (meta.rendermode != 0) ProcessModelNode(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
+				DrawQueueDepthBias = meta.depth_flat;
+				if (meta.rendermode_flat != 0)
+					ProcessModelNode(data->model, QueuedModelFlagsB_EnableZWrite, v1->scl.x);
 				else ProcessModelNode_AB_Wrapper(data->model, v1->scl.x);
 			}
 		}
 		else
 		{
-			switch (meta.rendermode)
+			DrawQueueDepthBias = meta.depth_model;
+			switch (meta.rendermode_model)
 			{
 			case 1:
 				ProcessModelNode_A(data->model);
@@ -296,6 +303,14 @@ void DLCObject_Display(task* a1)
 	}
 }
 
+bool CheckLevelAct(int level, int act)
+{
+	//There was supposed to be an evening/night check for XMAS 99 but I can't think of a good way to do it
+	if (level == LevelIDs_TwinkleCircuit && SuperSonicRacing) return true; //Play Super Sonic Racing in all circuits
+	else if (level == CurrentLevel && act == CurrentAct) return true;
+	return false;
+}
+
 void DLCObject_Main(task* a1)
 {
 	DLCObjectData* data;
@@ -312,11 +327,13 @@ void DLCObject_Main(task* a1)
 		return;
 	
 	//Delete if found in wrong level
-	if (data->level != CurrentLevel)
+	if (data->level != CurrentLevel || data->act != CurrentAct)
 	{
-		if ((data->level == LevelIDs_TwinkleCircuit && !SuperSonicRacing) || data->act != CurrentAct)
-		a1->dest(a1);
-		DeleteObjectMaster((ObjectMaster*)a1);
+		if (!(data->level == LevelIDs_TwinkleCircuit && !SuperSonicRacing))
+		{
+			//PrintDebug("Wrong level\n");
+			a1->dest(a1);
+		}
 	}
 	
 	//Rotate
@@ -329,6 +346,10 @@ void DLCObject_Main(task* a1)
 	else if (v1->wtimer > 0) v1->wtimer--;
 	
 	//Set to reappear if not collected
+	if (data->flags & FLAG_CHALLENGE)
+	{
+		if (!timer.enable && !timer.visible && v1->mode == ACTION_DISAPPEAR) v1->mode = ACTION_REAPPEAR;
+	}
 	if (data->flags & FLAG_TIMER)
 	{
 		if (timer.enable && v1->mode == ACTION_DISAPPEAR) v1->mode = ACTION_REAPPEAR;
@@ -352,7 +373,7 @@ void DLCObject_Main(task* a1)
 		}
 		break;
 	case ACTION_REAPPEAR:
-		if (v1->scl.x < 1.0f)
+		if (v1->scl.x < data->scale_x)
 		{
 			//PrintDebug("Reappear\n");
 			v1->scl.x = v1->scl.x * 1.05f;
@@ -362,9 +383,9 @@ void DLCObject_Main(task* a1)
 		}
 		else
 		{
-			v1->scl.x = 1.0f;
-			v1->scl.y = 1.0f;
-			v1->scl.z = 1.0f;
+			v1->scl.x = data->scale_x;
+			v1->scl.y = data->scale_y;
+			v1->scl.z = data->scale_z;
 			v1->mode = ACTION_NORMAL;
 			v1->wtimer = 0;
 		}
@@ -378,7 +399,7 @@ void DLCObject_Main(task* a1)
 		{
 			//PrintDebug("Hide collectible\n");
 			v1->mode = ACTION_DISAPPEAR;
-			return;
+			if (data->flags & FLAG_COLLECTIBLE) return;
 		}
 	}
 	DLCObject_Display(a1);

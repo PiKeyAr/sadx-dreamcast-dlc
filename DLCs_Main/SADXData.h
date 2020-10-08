@@ -1,4 +1,5 @@
 #pragma once
+#include "lanternapi.h"
 
 struct task;
 struct taskwk;
@@ -321,3 +322,7 @@ FunctionPointer(void, DrawModelCallback_QueueSprite, (void(__cdecl* function)(NJ
 FunctionPointer(void, ProcessModelNode_A, (NJS_OBJECT* a1), 0x4034B0);
 FunctionPointer(void, ProcessModelNode_E, (NJS_OBJECT* a1, QueuedModelFlagsB a2, float a3), 0x40A1E0);
 FunctionPointer(void, ProcessModelNode_F, (NJS_OBJECT *a1), 0x40A280);
+
+extern material_register* material_register_ptr;
+extern set_diffuse* set_diffuse_ptr;
+extern bool DLLLoaded_Lantern;
