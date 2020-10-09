@@ -40,18 +40,18 @@ struct dlcKeyInfo
 
 static const dlcKeyInfo dlcKeyNames[12] =
 {
-	{"Jan1DLC", "Jan2DLC", 10, 9},
-	{"Feb1DLC", "Feb2DLC", 3, 3},
-	{"Mar1DLC", "Mar2DLC", 6, 6},
-	{"Apr1DLC", "Apr2DLC", 0, 0},
-	{"May1DLC", "May2DLC", 0, 0},
+	{"Jan1DLC", "Jan2DLC", 2, 13},
+	{"Feb1DLC", "Feb2DLC", 4, 4},
+	{"Mar1DLC", "Mar2DLC", 3, 3},
+	{"Apr1DLC", "Apr2DLC", 14, 14},
+	{"May1DLC", "May2DLC", 7, 7},
 	{"Jun1DLC", "Jun2DLC", 8, 8},
-	{"Jul1DLC", "Jul2DLC", 7, 7},
-	{"Aug1DLC", "Aug2DLC", -1, -1},
+	{"Jul1DLC", "Jul2DLC", 9, 9},
+	{"Aug1DLC", "Aug2DLC", 15, 11},
 	{"Sep1DLC", "Sep2DLC", 5, 5},
-	{"Oct1DLC", "Oct2DLC", 4, 4},
-	{"Nov1DLC", "Nov2DLC", 8, 8},
-	{"Dec1DLC", "Dec2DLC", 2, 1},
+	{"Oct1DLC", "Oct2DLC", 6, 10},
+	{"Nov1DLC", "Nov2DLC", 10, 0},
+	{"Dec1DLC", "Dec2DLC", 1, 12},
 };
 
 std::string DownloadNameStrings[16];
