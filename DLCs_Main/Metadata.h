@@ -114,4 +114,6 @@ extern NJS_OBJECT* poster_model;
 extern NJS_TEXLIST checker_texlist;
 extern bool EnableCircuitMenu;
 extern bool SuperSonicRacing;
-extern int Codepage;
+extern int FrenchCodepage;
+extern int SpanishCodepage;
+extern int GermanCodepage;
