@@ -157,6 +157,10 @@ extern "C"
 			return;
 		}
 
+		//Prevent Mission Mode from loading SA_XMAS.PVM that overrides Global indices for DLC textures
+		Mission_TEXLISTS[4].Name = NULL;
+		Mission_TEXLISTS[4].TexList = NULL;
+
 		//Lighting
 		HMODULE LanternDLL = GetModuleHandle(L"sadx-dc-lighting");
 		if (LanternDLL != nullptr) DLLLoaded_Lantern = true;
