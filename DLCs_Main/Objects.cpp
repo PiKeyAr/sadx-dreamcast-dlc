@@ -48,31 +48,19 @@ enum DLCObjectActions
 void DLCObject_Delete(task* a1)
 {
 	//PrintDebug("Deleting object\n");
-	DLCObjectData* data;
-	//Check if data is already deleted
-	if (a1->awp != nullptr)
+	taskwk *v1 = a1->twp;
+	DLCObjectData* data = &meta.items[v1->id];
+	data->loaded = false;
+	//Delete message
+	if (data->flags & FLAG_MESSAGE)
 	{
-		data = (DLCObjectData*)a1->awp->work.ptr[0];
-		//PrintDebug("Deleting data at %f, %f, %f\n", data->x, data->y, data->z);
-		if (data != nullptr)
-		{
-			data->loaded = false;
-			//Delete message
-			if (data->flags & FLAG_MESSAGE)
-			{
-				//PrintDebug("Delete message\n");
-				delete[] a1->awp->work.ptr[1];
-				a1->awp->work.ptr[1] = nullptr;
-			}
-			//Delete collision
-			//PrintDebug("Delete collision\n");
-			if (data->flags & FLAG_SOLID || data->flags & FLAG_COLLISION_ONLY) DynamicCOL_DeleteObject((ObjectMaster*)a1);
-			//PrintDebug("Data nullptr\n");
-			a1->awp->work.ptr[0] = nullptr;
-		}
-		_HeapFree(a1->awp);
-		a1->awp = nullptr;
+		//PrintDebug("Delete message\n");
+		delete[] a1->twp->value.ptr;
+		a1->twp->value.ptr = nullptr;
 	}
+	//Delete collision
+	//PrintDebug("Delete collision\n");
+	if (data->flags & FLAG_SOLID || data->flags & FLAG_COLLISION_ONLY) DynamicCOL_DeleteObject((ObjectMaster*)a1);
 	//PrintDebug("Calling CheckThing\n");
 	CheckThingButThenDeleteObject((ObjectMaster*)a1);
 }
@@ -82,7 +70,7 @@ void DLCObject_Action(task* a1)
 	DLCObjectData* data;
 	taskwk* v1;
 	v1 = a1->twp;
-	data = (DLCObjectData*)a1->awp->work.ptr[0];
+	data = &meta.items[v1->id];
 	if (v1->wtimer > 0 || data->flags & FLAG_COLLISION_ONLY) return; //Don't continue if old action is still taking place or of the object is collision only
 	if (data->flags & FLAG_COLLECTIBLE && !timer.enable) return;
 	v1->wtimer = 60;
@@ -110,7 +98,7 @@ void DLCObject_Action(task* a1)
 				timer.enable = false;
 				data->collected = true;
 				v1->mode = ACTION_DISAPPEAR;
-				CreateHintMessage(CreateSubtitleText, (const char**)a1->awp->work.ptr[1], 120);
+				CreateHintMessage(CreateSubtitleText, (const char**)a1->twp->value.ptr, 120);
 			}
 			//Time over
 			else if (timer.time_current > timer.time_target * 3600)
@@ -123,7 +111,7 @@ void DLCObject_Action(task* a1)
 		else
 		{
 			HintDuration = 120;
-			CreateHintMessage(CreateSubtitleText, (const char**)a1->awp->work.ptr[1], 120);
+			CreateHintMessage(CreateSubtitleText, (const char**)a1->twp->value.ptr, 120);
 		}
 	}
 	//CHALLENGE and TIMER are mutually exclusive
@@ -219,12 +207,7 @@ void DLCObject_Display(task* a1)
 	int texid_bk = 0;
 
 	//Safety checks
-	if (a1->awp == nullptr)
-	{
-		//PrintDebug("Display sub why?\n");
-		return;
-	}
-	data = (DLCObjectData*)a1->awp->work.ptr[0];
+	data = &meta.items[v1->id];
 	if (data == nullptr)
 	{
 		//PrintDebug("Display sub why?\n");
@@ -317,19 +300,19 @@ void DLCObject_Main(task* a1)
 	taskwk* v1;
 	anywk* v2;
 	v1 = a1->twp;
-	v2 = a1->awp;
 
 	//Failsafe stuff
-	if (v2 == nullptr)
-		return;
-	data = (DLCObjectData*)a1->awp->work.ptr[0];
+	data = &meta.items[v1->id];
 	if (data == nullptr)
+	{
+		a1->dest(a1);
 		return;
+	}
 	
 	//Delete if found in wrong level
 	if (data->level != CurrentLevel || data->act != CurrentAct)
 	{
-		if (!(data->level == LevelIDs_TwinkleCircuit && !SuperSonicRacing))
+		if (!(data->level == LevelIDs_TwinkleCircuit && SuperSonicRacing))
 		{
 			//PrintDebug("Wrong level\n");
 			a1->dest(a1);
@@ -413,7 +396,7 @@ void DLCObject_Load(ObjectMaster* ax)
 	taskwk* v1;
 	anywk* v2;
 	v1 = a1->twp;
-	data = (DLCObjectData*)a1->awp->work.ptr[0];
+	data = &meta.items[v1->id];
 
 	//Quit if the object is already loaded
 	if (data->loaded) return;
@@ -442,7 +425,7 @@ void DLCObject_Load(ObjectMaster* ax)
 			break;
 		}
 		arr[1] = NULL;
-		a1->awp->work.ptr[1] = arr;
+		a1->twp->value.ptr = arr;
 	}
 
 	//Create collision
@@ -491,20 +474,17 @@ void DLCObject_Load(ObjectMaster* ax)
 	data->loaded = true;
 }
 
-void LoadDLCObject(DLCObjectData* data)
+void LoadDLCObject(int id)
 {
 	task* obj;
 	taskwk* ent;
-	anywk* awk;
-
+	DLCObjectData *data = &meta.items[id];
 	obj = (task*)LoadObject(LoadObj_Data1, 3, DLCObject_Load);
-	obj->awp = (anywk*)_HeapAlloc(1, 48);
+	obj->twp->id = id;
 	setdata_dlc.unionStatus.fRangeOut = 612800.0f;
 	obj->ocp = &setdata_dlc;
 	if (obj)
 	{
-		awk = obj->awp;
-		awk->work.ptr[0] = data;
 		ent = (taskwk*)obj->twp;
 		ent->pos.x = data->x;
 		ent->pos.y = data->y;

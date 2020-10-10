@@ -9,12 +9,8 @@
 #include "SegaVoice.h"
 #include "lanternapi.h"
 
-//TODO: Rendering settings for flat model
 //TODO: Write out save files
 //TODO: DLC selection menu
-
-unsigned char checker_texturedata[6144];
-NJS_TEXINFO checker_texinfo;
 
 _SYSTEMTIME CurrentTime;
 static int MonthlyDLCs[12][2];
@@ -64,14 +60,10 @@ bool EnableCircuitMenu = false;
 bool SuperSonicRacing = true;
 bool DisableDuringStory = true;
 
-void LoadDLCObject(DLCObjectData* data);
+void LoadDLCObject(int id);
 
 NJS_TEXNAME maintexnames[32];
 NJS_TEXLIST maintexlist = {arrayptrandlength(maintexnames)};
-
-NJS_TEXNAME checker_textures[1];
-NJS_TEXLIST checker_texlist = {arrayptrandlength(checker_textures)};
-NJS_TEXMEMLIST checker_texmemlist;
 
 std::string path_dlc_textures;
 
@@ -112,9 +104,6 @@ signed int __cdecl InitDownload()
 		break;
 	}
 
-	//Load checkerboard texture
-	checker_textures[0].texaddr = (Uint32)TexMemList_PixelFormat(&checker_texinfo, 237542221);
-
 	//Load timer
 	if (!timer.loaded)
 	{
@@ -132,7 +121,7 @@ signed int __cdecl InitDownload()
 		if (!CheckLevelAct(meta.items[i].level, meta.items[i].act)) continue;
 		{
 			//PrintDebug("Object %d, Level: %d, Act: %d\n", i, meta.items[i].level, meta.items[i].act);
-			LoadDLCObject(&meta.items[i]);
+			LoadDLCObject(i);
 		}
 	}
 
@@ -173,19 +162,7 @@ extern "C"
 		if (LanternDLL != nullptr) DLLLoaded_Lantern = true;
 		material_register_ptr = (void(*)(const NJS_MATERIAL* const* materials, size_t length, lantern_material_cb callback))GetProcAddress(LanternDLL, "material_register");
 		set_diffuse_ptr = (void(*)(int32_t, bool))GetProcAddress(LanternDLL, "set_diffuse");
-
-		//Initialize checkerboard texture for circuit menu
-		checker_texturedata[0] = 0xAA;
-		checker_texturedata[1] = 0x52;
-		checker_texturedata[2] = 0xC3;
-		checker_texturedata[3] = 0x18;
-		checker_texturedata[4] = 0xC3;
-		checker_texturedata[5] = 0x18;
-		checker_texturedata[6] = 0xAA;
-		checker_texturedata[7] = 0x52;
-		njSetTextureInfo(&checker_texinfo, (Uint16*)&checker_texturedata, NJD_TEXFMT_VQ | NJD_TEXFMT_RGB_565, 128, 128);
-		njSetTextureNameEx(checker_textures, &checker_texinfo, (void*)0xFFFFFFFE, NJD_TEXATTR_GLOBALINDEX | NJD_TEXATTR_TYPE_MEMORY);
-
+		
 		//Write SADX functions
 		WriteJump((void*)0x4570B0, InitDownload);
 		WriteCall((void*)0x793D06, SetHudColorAndTextureNum_Italic);
@@ -317,6 +294,7 @@ extern "C"
 
 	__declspec(dllexport) void __cdecl OnFrame()
 	{
+		if (CurrentLevel == LevelIDs_TwinkleCircuit && LastLevel == LevelIDs_StationSquare && LastAct == 3) LastAct = 5;
 		if (MenuVoiceMode != -1) MenuVoice_OnFrame();
 		if (EnableCircuitMenu) TwinkleCircuitMenu_Display();
 	}

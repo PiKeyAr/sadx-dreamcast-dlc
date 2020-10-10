@@ -62,9 +62,6 @@
     <ClInclude Include="SADXData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CircuitMenu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SegaVoice.h">
       <Filter>Header Files</Filter>
     </ClInclude>

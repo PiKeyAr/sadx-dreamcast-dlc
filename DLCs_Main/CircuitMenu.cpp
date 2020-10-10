@@ -5,6 +5,13 @@
 #include "SADXData.h"
 
 //Twinkle Circuit selection screen
+
+unsigned char checker_texturedata[6144];
+NJS_TEXINFO checker_texinfo;
+NJS_TEXNAME checker_textures[1];
+NJS_TEXLIST checker_texlist = {arrayptrandlength(checker_textures)};
+NJS_TEXMEMLIST checker_texmemlist;
+
 void BackupDebugFontSettings();
 void RestoreDebugFontSettings();
 void DrawCenteredDebugRectangle(float leftchar, float topchar, float rightchar, float bottomchar, Uint32 color);
@@ -61,7 +68,12 @@ void CheckerboardCallback(NJS_SPRITE* sprite)
 
 void TwinkleCircuitMenu_Display()
 {
-	if (CurrentLevel == LevelIDs_TwinkleCircuit || Camera_Data1 == nullptr) return;
+	if (CurrentLevel != LevelIDs_StationSquare && CurrentLevel != LevelIDs_TwinkleCircuit)
+	{
+		circuitmenu_mode = MODE_DISABLE;
+		return;
+	}
+	if (Camera_Data1 == nullptr) return;
 	if (CharObj2Ptrs[0] != nullptr)
 		CharObj2Ptrs[0]->IdleTime = 0;
 	switch (circuitmenu_mode)
@@ -204,6 +216,22 @@ void TwinkleCircuitMenu_Init()
 	PlayMusic(MusicIDs_ssracing);
 	stickpress = true;
 	PlaySound(21, 0, 0, 0);
+
+	//Initialize checkerboard texture for circuit menu
+	checker_texturedata[0] = 0xAA;
+	checker_texturedata[1] = 0x52;
+	checker_texturedata[2] = 0xC3;
+	checker_texturedata[3] = 0x18;
+	checker_texturedata[4] = 0xC3;
+	checker_texturedata[5] = 0x18;
+	checker_texturedata[6] = 0xAA;
+	checker_texturedata[7] = 0x52;
+	njSetTextureInfo(&checker_texinfo, (Uint16*)&checker_texturedata, NJD_TEXFMT_VQ | NJD_TEXFMT_RGB_565, 128, 128);
+	njSetTextureNameEx(checker_textures, &checker_texinfo, (void*)0xFFFFFFFE, NJD_TEXATTR_GLOBALINDEX | NJD_TEXATTR_TYPE_MEMORY);
+
+	//Load checkerboard texture
+	checker_textures[0].texaddr = (Uint32)TexMemList_PixelFormat(&checker_texinfo, 237542221);
+
 }
 
 void TwinkleCircuitMenu_Input()

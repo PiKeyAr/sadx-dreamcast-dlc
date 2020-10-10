@@ -137,7 +137,7 @@ void DLCObjectData::Load(const IniFile* ini, Uint8 id)
 		NJS_OBJECT* model_full = modelfile->getmodel();
 		model = model_full;
 		if (textureid != 0) model->basicdxmodel->mats[0].attr_texId = textureid;
-		if (model->basicdxmodel->mats[0].attrflags & NJD_FLAG_IGNORE_LIGHT)
+		if (model->basicdxmodel->mats[0].attrflags & NJD_FLAG_IGNORE_LIGHT && model->basicdxmodel->mats[1].attrflags & NJD_FLAG_IGNORE_LIGHT) //stupid hack but idk
 		{
 			for (int u = 1; u < model->basicdxmodel->nbMat; u++)
 				AddWhiteDiffuseMaterial(&model->basicdxmodel->mats[u]);

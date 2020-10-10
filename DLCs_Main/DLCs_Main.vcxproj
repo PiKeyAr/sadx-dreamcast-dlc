@@ -98,7 +98,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChallengeTimer.h" />
-    <ClInclude Include="CircuitMenu.h" />
     <ClInclude Include="lanternapi.h" />
     <ClInclude Include="Metadata.h" />
     <ClInclude Include="SADXData.h" />
