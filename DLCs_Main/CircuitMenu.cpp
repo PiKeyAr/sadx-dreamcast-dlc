@@ -79,7 +79,6 @@ void TwinkleCircuitMenu_Display()
 	switch (circuitmenu_mode)
 	{
 	case MODE_DISABLE:
-		ControlEnabled = true;
 		return;
 	case MODE_ENABLE:
 		fadealpha = min(255, fadealpha + 8);
@@ -87,14 +86,15 @@ void TwinkleCircuitMenu_Display()
 		ControlEnabled = false;
 		break;
 	case MODE_CANCEL:
+		ControlEnabled = false;
 		fadealpha = max(0, fadealpha - 8);
 		if (offset < 40) offset++;
 		if (offset >= 40)
 		{
 			offset = 40;
 			circuitmenu_mode = MODE_DISABLE;
+			ControlEnabled = true;
 		}
-		ControlEnabled = false;
 		break;
 	case MODE_WARP:
 		fadealpha = 255;
@@ -104,6 +104,7 @@ void TwinkleCircuitMenu_Display()
 	case MODE_FINISH:
 		fadealpha = 0;
 		circuitmenu_mode = MODE_DISABLE;
+		ControlEnabled = true;
 		break;
 	}
 
@@ -148,17 +149,17 @@ void TwinkleCircuitMenu_Display()
 	DisplayCenteredDebugString("(UNOFFICIAL)", 0+offset, 6);
 	DisplayCenteredDebugString("SELECT A COURSE", 0-offset, 8);
 	if (selection == 0)	SetDebugFontColor(redglow_color.color); else	SetDebugFontColor(0xFFF0F0F0);
-	DisplayCenteredDebugString("COURSE 1 (REGULAR)", 0+offset, 11);
+	DisplayCenteredDebugString("TWINKLE CIRCUIT   ", 0+offset, 11);
 	if (selection == 1)	SetDebugFontColor(redglow_color.color); else	SetDebugFontColor(0xFFF0F0F0);
-	DisplayCenteredDebugString("COURSE 2 (UNKNOWN)", 0-offset, 13);
+	DisplayCenteredDebugString("EGGMAN`S CHALLENGE", 0-offset, 13);
 	if (selection == 2)	SetDebugFontColor(redglow_color.color); else	SetDebugFontColor(0xFFF0F0F0);
-	DisplayCenteredDebugString("COURSE 3 (SAMBA GP)", 0+offset, 15);
+	DisplayCenteredDebugString("SAMBA GP          ", 0+offset, 15);
 	if (selection == 3)	SetDebugFontColor(redglow_color.color); else	SetDebugFontColor(0xFFF0F0F0);
-	DisplayCenteredDebugString("COURSE 4 (UNKNOWN)", 0-offset, 17);
+	DisplayCenteredDebugString("AN UPWARD BATTLE  ", 0-offset, 17);
 	if (selection == 4)	SetDebugFontColor(redglow_color.color); else	SetDebugFontColor(0xFFF0F0F0);
-	DisplayCenteredDebugString("COURSE 5 (UNKNOWN)", 0+offset, 19);
+	DisplayCenteredDebugString("JUMPS`N`BUMPS     ", 0+offset, 19);
 	if (selection == 5)	SetDebugFontColor(redglow_color.color); else	SetDebugFontColor(0xFFF0F0F0);
-	DisplayCenteredDebugString("COURSE 6 (UNKNOWN)", 0-offset, 21);
+	DisplayCenteredDebugString("CRAZY CORNERS     ", 0-offset, 21);
 	if (selection == 6)	SetDebugFontColor(redglow_color.color); else	SetDebugFontColor(0xFFF0F0F0);
 	DisplayCenteredDebugString("EXIT", -7 + offset, 23);
 
