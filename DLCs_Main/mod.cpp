@@ -15,6 +15,7 @@
 _SYSTEMTIME CurrentTime;
 static int MonthlyDLCs[12][2];
 std::string DLCMode;
+int Codepage = 1252;
 
 void TwinkleCircuitMenu_Display();
 void SetHudColorAndTextureNum_Italic(int n, NJS_COLOR color);
@@ -220,6 +221,11 @@ extern "C"
 			}
 		}
 		delete config;
+
+		//Codepage for translations
+		const std::string s_codepage_ini(helperFunctions.GetReplaceablePath("SYSTEM\\dlc\\codepage.ini"));
+		const IniFile* ini_codepage = new IniFile(s_codepage_ini);
+		Codepage = ini_codepage->getInt("", "Codepage", 1252);
 
 		//DLC config stuff
 		const std::string s_files_ini(helperFunctions.GetReplaceablePath("SYSTEM\\dlc\\files.ini"));

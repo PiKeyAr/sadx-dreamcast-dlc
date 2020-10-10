@@ -186,9 +186,9 @@ void DLCMetadata::Load(const IniFile* ini)
 	{
 		JapaneseStrings[s] = UTF8ToANSI(ini->getString("", "JapaneseMessage" + std::to_string(s), ""), 932);
 		EnglishStrings[s] = UTF8ToANSI(ini->getString("", "EnglishMessage" + std::to_string(s), ""), 932);
-		FrenchStrings[s] = UTF8ToANSI(ini->getString("", "FrenchMessage" + std::to_string(s), ""), 1252);
-		SpanishStrings[s] = UTF8ToANSI(ini->getString("", "SpanishMessage" + std::to_string(s), ""), 1252);
-		GermanStrings[s] = UTF8ToANSI(ini->getString("", "GermanMessage" + std::to_string(s), ""), 1252);
+		FrenchStrings[s] = UTF8ToANSI(ini->getString("", "FrenchMessage" + std::to_string(s), ""), Codepage);
+		SpanishStrings[s] = UTF8ToANSI(ini->getString("", "SpanishMessage" + std::to_string(s), ""), Codepage);
+		GermanStrings[s] = UTF8ToANSI(ini->getString("", "GermanMessage" + std::to_string(s), ""), Codepage);
 	}
 }
 
