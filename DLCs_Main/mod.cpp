@@ -58,7 +58,7 @@ const char* path_model;
 const char* path_model_flat;
 DLCMetadata meta;
 const IniFile* ini_download;
-Uint8 DownloadID = 0;
+Sint8 DownloadID = 0;
 bool EnableCircuitMenu = false;
 bool SuperSonicRacing = true;
 bool DisableDuringStory = true;
@@ -81,6 +81,9 @@ bool FileExists(const char* filename)
 
 signed int __cdecl InitDownload()
 {
+	//Exit if no DLC is selected in Single mode
+	if (DownloadID == -1) return 1;
+
 	//Exit if story in not completed
 	if (DisableDuringStory && !IsAdventureComplete(GetCharacterSelection())) return 1;
 
@@ -179,7 +182,7 @@ extern "C"
 		const std::string s_path(path);
 		const std::string s_config_ini(s_path + "\\config.ini");
 		const IniFile* const config = new IniFile(s_config_ini);
-		MenuVoiceMode = config->getInt("General settings", "MenuVoiceThing", -1);
+		MenuVoiceMode = config->getInt("General settings", "MenuVoiceThing", 10); //True Random
 		SEGAVoice = config->getBool("General settings", "SegaVoice", false);
 		MenuVoice_Init();
 		GetLocalTime(&CurrentTime);
@@ -202,7 +205,7 @@ extern "C"
 		//DLC modes
 		if (DLCMode == "Single")
 		{
-			DownloadID = config->getInt("General settings", "DLCSingle", 0);
+			DownloadID = config->getInt("General settings", "DLCSingle", 15);
 		}
 		else if (DLCMode == "Random")
 		{
@@ -223,6 +226,7 @@ extern "C"
 			}
 		}
 		delete config;
+		if (DownloadID == -1) return;
 
 		//Codepage for translations
 		const std::string s_codepage_ini(helperFunctions.GetReplaceablePath("SYSTEM\\dlc\\codepage.ini"));
@@ -308,6 +312,7 @@ extern "C"
 
 	__declspec(dllexport) void __cdecl OnFrame()
 	{
+		if (DownloadID == -1) return;
 		if (CurrentLevel == LevelIDs_TwinkleCircuit && LastLevel == LevelIDs_StationSquare && LastAct == 3) LastAct = 5;
 		if (MenuVoiceMode != -1) MenuVoice_OnFrame();
 		if (EnableCircuitMenu) TwinkleCircuitMenu_Display();
@@ -315,6 +320,7 @@ extern "C"
 
 	__declspec(dllexport) void __cdecl OnInput()
 	{
+		if (DownloadID == -1) return;
 		//if (ControllerPointers[0]->PressedButtons & Buttons_A) PlaySound(0x567, 0, 0, 0); //SE_DL_DOWNLOAD
 		if (EnableCircuitMenu) TwinkleCircuitMenu_Input();
 		if (IsGamePaused() && ControllerPointers[0]->PressedButtons & Buttons_Y)

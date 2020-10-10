@@ -3,7 +3,7 @@
 #include <random>
 #include "SegaVoice.h"
 
-Sint8 MenuVoiceMode = 0;
+Sint8 MenuVoiceMode = 10;
 bool SEGAVoice = false;
 static int CharacterVoice = 0;
 static bool AlternateEggman = false;
