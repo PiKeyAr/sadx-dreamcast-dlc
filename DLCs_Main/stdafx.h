@@ -12,14 +12,13 @@
 // C includes. (C++ namespace)
 #include <cstdio>
 
-// SADXModLoader and related.
+// Windows
+#include <Windows.h>
+
+// SADXModLoader and related
 #include "SADXModLoader.h"
 #include "IniFile.hpp"
 #include "Trampoline.h"
 
-// DLCs
-#include "DLCs.h"
-#include "Timer.h"
-#include "Posters.h"
-#include "Balloon.h"
-#include "Messages.h"
+//Metadata
+#include "Metadata.h"

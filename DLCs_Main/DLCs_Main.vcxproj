@@ -45,6 +45,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)\bin</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\bin</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -58,74 +61,49 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectDir)..\bin\ModLoaderCommon.lib;$(ProjectDir)..\bin\libmodutils.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\bin\ModLoaderCommon.lib;$(ProjectDir)..\bin\libmodutils.lib;$(SolutionDir)sadx-dc-lighting.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
+      <DelayLoadDLLs>sadx-dc-lighting.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\sadx-mod-loader\SADXModLoader\include;$(ProjectDir)..\sadx-mod-loader\mod-loader-common\ModLoaderCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\sadx-mod-loader\libmodutils;$(ProjectDir)..\sadx-mod-loader\SADXModLoader\include;$(ProjectDir)..\sadx-mod-loader\mod-loader-common\ModLoaderCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(ProjectDir)..\bin\ModLoaderCommon.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectDir)..\bin\ModLoaderCommon.lib;$(ProjectDir)..\bin\libmodutils.lib;$(SolutionDir)sadx-dc-lighting.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
+      <DelayLoadDLLs>sadx-dc-lighting.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ATT.cpp" />
-    <ClCompile Include="Christmas98.cpp" />
-    <ClCompile Include="Christmas99.cpp" />
-    <ClCompile Include="Balloon.cpp" />
-    <ClCompile Include="Kadomatsu.cpp" />
+    <ClCompile Include="ChallengeTimer.cpp" />
+    <ClCompile Include="CircuitMenu.cpp" />
+    <ClCompile Include="Lantern.cpp" />
+    <ClCompile Include="SADXData.cpp" />
+    <ClCompile Include="DebugFont.cpp" />
+    <ClCompile Include="Metadata.cpp" />
     <ClCompile Include="mod.cpp" />
-    <ClCompile Include="Famitsu.cpp" />
-    <ClCompile Include="Halloween.cpp" />
-    <ClCompile Include="LaunchParty.cpp" />
-    <ClCompile Include="Messages.cpp" />
-    <ClCompile Include="Posters.cpp" />
-    <ClCompile Include="Quo.cpp" />
-    <ClCompile Include="Reebok.cpp" />
-    <ClCompile Include="SambaGP.cpp" />
+    <ClCompile Include="Objects.cpp" />
+    <ClCompile Include="SegaVoice.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Y2K.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ATT.h" />
-    <ClInclude Include="Balloon.h" />
-    <ClInclude Include="Christmas98.h" />
-    <ClInclude Include="Christmas99.h" />
-    <ClInclude Include="Data\DLC_ATT.h" />
-    <ClInclude Include="Data\DLC_Christmas98.h" />
-    <ClInclude Include="Data\DLC_Christmas99.h" />
-    <ClInclude Include="Data\DLC_Halloween.h" />
-    <ClInclude Include="Data\DLC_Kadomatsu.h" />
-    <ClInclude Include="Data\DLC_LaunchParty.h" />
-    <ClInclude Include="Data\DLC_Reebok.h" />
-    <ClInclude Include="Data\DLC_SambaGP.h" />
-    <ClInclude Include="Data\DLC_Y2K.h" />
-    <ClInclude Include="DLCs.h" />
-    <ClInclude Include="Famitsu.h" />
-    <ClInclude Include="Halloween.h" />
-    <ClInclude Include="Kadomatsu.h" />
-    <ClInclude Include="LaunchParty.h" />
-    <ClInclude Include="Messages.h" />
-    <ClInclude Include="Posters.h" />
-    <ClInclude Include="Quo.h" />
-    <ClInclude Include="Reebok.h" />
-    <ClInclude Include="SambaGP.h" />
+    <ClInclude Include="ChallengeTimer.h" />
+    <ClInclude Include="lanternapi.h" />
+    <ClInclude Include="Metadata.h" />
+    <ClInclude Include="SADXData.h" />
+    <ClInclude Include="SegaVoice.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="Y2K.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
