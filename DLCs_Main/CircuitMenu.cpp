@@ -74,8 +74,7 @@ void TwinkleCircuitMenu_Display()
 		return;
 	}
 	if (Camera_Data1 == nullptr) return;
-	if (CharObj2Ptrs[0] != nullptr)
-		CharObj2Ptrs[0]->IdleTime = 0;
+
 	switch (circuitmenu_mode)
 	{
 	case MODE_DISABLE:
@@ -84,6 +83,8 @@ void TwinkleCircuitMenu_Display()
 		fadealpha = min(255, fadealpha + 8);
 		if (offset > 0) offset--;
 		ControlEnabled = false;
+		if (CharObj2Ptrs[0] != nullptr)
+			CharObj2Ptrs[0]->IdleTime = 0;
 		break;
 	case MODE_CANCEL:
 		ControlEnabled = false;
