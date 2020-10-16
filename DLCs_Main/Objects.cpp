@@ -60,9 +60,9 @@ void DLCObject_Delete(task* a1)
 	}
 	//Delete collision
 	//PrintDebug("Delete collision\n");
-	if (data->flags & FLAG_SOLID || data->flags & FLAG_COLLISION_ONLY) DynamicCOL_DeleteObject((ObjectMaster*)a1);
+	if (data->flags & FLAG_SOLID || data->flags & FLAG_COLLISION_ONLY) B_Destructor(a1);
 	//PrintDebug("Calling CheckThing\n");
-	CheckThingButThenDeleteObject((ObjectMaster*)a1);
+	FreeTask(a1);
 }
 
 void DLCObject_Action(task* a1)
@@ -388,9 +388,8 @@ void DLCObject_Main(task* a1)
 	DLCObject_Display(a1);
 }
 
-void DLCObject_Load(ObjectMaster* ax)
+void DLCObject_Load(task* a1)
 {
-	task* a1 = (task*)ax;
 	NJS_OBJECT* collision;
 	DLCObjectData* data;
 	taskwk* v1;
@@ -445,7 +444,7 @@ void DLCObject_Load(ObjectMaster* ax)
 		collision->pos[0] = v1->pos.x;
 		collision->pos[1] = v1->pos.y;
 		collision->pos[2] = v1->pos.z;
-		DynamicCOL_Add((ColFlags)0x10001001, (ObjectMaster*)a1, collision);
+		RegisterCollisionEntry((ColFlags)0x10001001, a1, collision);
 	}
 	else collision = nullptr;
 
@@ -479,7 +478,7 @@ void LoadDLCObject(int id)
 	task* obj;
 	taskwk* ent;
 	DLCObjectData *data = &meta.items[id];
-	obj = (task*)LoadObject(LoadObj_Data1, 3, DLCObject_Load);
+	obj = CreateElementalTask(LoadObj_Data1, 3, DLCObject_Load);
 	obj->twp->id = id;
 	setdata_dlc.unionStatus.fRangeOut = 612800.0f;
 	obj->ocp = &setdata_dlc;

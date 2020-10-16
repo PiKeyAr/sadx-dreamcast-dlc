@@ -13,7 +13,7 @@ Uint32 ChallengeTimer::time_current;
 Uint32 ChallengeTimer::time_target;
 char ChallengeTimer::target_total;
 char ChallengeTimer::target_current;
-SETObjData ChallengeTimer::setdata_timer;
+OBJ_CONDITION ChallengeTimer::setdata_timer;
 char ChallengeTimer::highlightchar;
 bool ChallengeTimer::timer_flip;
 bool ChallengeTimer::pause_flip;
@@ -35,7 +35,7 @@ std::string ReplaceZeroes(int value)
 	return result;
 }
 
-void ChallengeTimer::DisplaySub(ObjectMaster* a1)
+void ChallengeTimer::DisplaySub(task* a1)
 {
 	if (!visible) return;
 	BackupDebugFontSettings();
@@ -105,41 +105,41 @@ void ChallengeTimer::DisplaySub(ObjectMaster* a1)
 	RestoreDebugFontSettings();
 }
 
-void ChallengeTimer::MainSub(ObjectMaster* a1)
+void ChallengeTimer::MainSub(task* a1)
 {
 	if (enable) time_current++;
 	if (visible) DisplaySub(a1);
 }
 
-void ChallengeTimer::DeleteSub(ObjectMaster* a1)
+void ChallengeTimer::DeleteSub(task* a1)
 {
 	loaded = false;
 }
 
-void ChallengeTimer::LoadSub(ObjectMaster* a1)
+void ChallengeTimer::LoadSub(task* a1)
 {
-	a1->MainSub = (void(__cdecl*)(ObjectMaster*))MainSub;
-	a1->DisplaySub = (void(__cdecl*)(ObjectMaster*))DisplaySub;
-	a1->DeleteSub = (void(__cdecl*)(ObjectMaster*))DeleteSub;
+	a1->exec = (void(__cdecl*)(task*))MainSub;
+	a1->disp = (void(__cdecl*)(task*))DisplaySub;
+	a1->dest = (void(__cdecl*)(task*))DeleteSub;
 }
 
 void ChallengeTimer::Initialize()
 {
-	ObjectMaster* obj;
-	EntityData1* ent;
+	task* obj;
+	taskwk* ent;
 	if (!loaded)
 	{
-		obj = LoadObject((LoadObj)2, 3, LoadSub);
-		setdata_timer.Distance = 612800.0f;
-		obj->SETData.SETData = &setdata_timer;
+		obj = CreateElementalTask((LoadObj)2, 3, LoadSub);
+		setdata_timer.unionStatus.fRangeOut = 612800.0f;
+		obj->ocp = &setdata_timer;
 		if (obj)
 		{
-			ent = obj->Data1;
-			ent->Position.x = 64;
-			ent->Position.y = 64;
-			ent->Scale.x = 1.0f;
-			ent->Scale.y = 1.0f;
-			ent->Scale.z = 1.0f;
+			ent = obj->twp;
+			ent->pos.x = 64;
+			ent->pos.y = 64;
+			ent->scl.x = 1.0f;
+			ent->scl.y = 1.0f;
+			ent->scl.z = 1.0f;
 		}
 	}
 	//Load "found all", "clear" and "time up" strings. They're always number 0, 1 and 2 respectively.
