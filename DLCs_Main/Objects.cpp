@@ -60,9 +60,9 @@ void DLCObject_Delete(task* a1)
 	}
 	//Delete collision
 	//PrintDebug("Delete collision\n");
-	if (data->flags & FLAG_SOLID || data->flags & FLAG_COLLISION_ONLY) DynamicCOL_DeleteObject((ObjectMaster*)a1);
+	if (data->flags & FLAG_SOLID || data->flags & FLAG_COLLISION_ONLY) B_Destructor(a1);
 	//PrintDebug("Calling CheckThing\n");
-	CheckThingButThenDeleteObject((ObjectMaster*)a1);
+	FreeTask(a1);
 }
 
 void DLCObject_Action(task* a1)
@@ -70,6 +70,7 @@ void DLCObject_Action(task* a1)
 	DLCObjectData* data;
 	taskwk* v1;
 	v1 = a1->twp;
+	const char** messages = (const char**)v1->value.ptr;
 	data = &meta.items[v1->id];
 	if (v1->wtimer > 0 || data->flags & FLAG_COLLISION_ONLY) return; //Don't continue if old action is still taking place or of the object is collision only
 	if (data->flags & FLAG_COLLECTIBLE && !timer.enable) return;
@@ -82,6 +83,11 @@ void DLCObject_Action(task* a1)
 	}
 	if (data->flags & FLAG_MESSAGE)
 	{
+		if (messages == NULL)
+		{
+			PrintDebug("Object at %f %f %f has no message data", meta.items[a1->twp->id].x, meta.items[a1->twp->id].y, meta.items[a1->twp->id].z);
+			return;
+		}
 		//Found all
 		if (data->flags & FLAG_COLLECTIBLE && timer.target_current >= timer.target_total)
 		{
@@ -98,7 +104,7 @@ void DLCObject_Action(task* a1)
 				timer.enable = false;
 				data->collected = true;
 				v1->mode = ACTION_DISAPPEAR;
-				CreateHintMessage(CreateSubtitleText, (const char**)a1->twp->value.ptr, 120);
+				CreateHintMessage(CreateSubtitleText, messages, 120);
 			}
 			//Time over
 			else if (timer.time_current > timer.time_target * 3600)
@@ -111,7 +117,7 @@ void DLCObject_Action(task* a1)
 		else
 		{
 			HintDuration = 120;
-			CreateHintMessage(CreateSubtitleText, (const char**)a1->twp->value.ptr, 120);
+			CreateHintMessage(CreateSubtitleText, messages, 120);
 		}
 	}
 	//CHALLENGE and TIMER are mutually exclusive
@@ -316,6 +322,7 @@ void DLCObject_Main(task* a1)
 		{
 			//PrintDebug("Wrong level\n");
 			a1->dest(a1);
+			return;
 		}
 	}
 	
@@ -388,9 +395,8 @@ void DLCObject_Main(task* a1)
 	DLCObject_Display(a1);
 }
 
-void DLCObject_Load(ObjectMaster* ax)
+void DLCObject_Load(task* a1)
 {
-	task* a1 = (task*)ax;
 	NJS_OBJECT* collision;
 	DLCObjectData* data;
 	taskwk* v1;
@@ -445,7 +451,7 @@ void DLCObject_Load(ObjectMaster* ax)
 		collision->pos[0] = v1->pos.x;
 		collision->pos[1] = v1->pos.y;
 		collision->pos[2] = v1->pos.z;
-		DynamicCOL_Add((ColFlags)0x10001001, (ObjectMaster*)a1, collision);
+		RegisterCollisionEntry((ColFlags)0x10001001, a1, collision);
 	}
 	else collision = nullptr;
 
@@ -479,7 +485,7 @@ void LoadDLCObject(int id)
 	task* obj;
 	taskwk* ent;
 	DLCObjectData *data = &meta.items[id];
-	obj = (task*)LoadObject(LoadObj_Data1, 3, DLCObject_Load);
+	obj = CreateElementalTask(LoadObj_Data1, 3, DLCObject_Load);
 	obj->twp->id = id;
 	setdata_dlc.unionStatus.fRangeOut = 612800.0f;
 	obj->ocp = &setdata_dlc;

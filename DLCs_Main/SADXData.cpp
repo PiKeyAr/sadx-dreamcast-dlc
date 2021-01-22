@@ -161,10 +161,3 @@ void DisplayCenteredDebugString(std::string str, int hzoffset = 0, int yoffset =
 	if (yoffset != -1) pos_y = yoffset;
 	DisplayDebugString(NJM_LOCATION(pos_x, pos_y), str.c_str());
 }
-
-Uint16 CheckerboardTextureData;
-NJS_TEXNAME checkerboard_texname[1];
-NJS_TEXLIST checkerboard_texlist = {arrayptrandlength(checkerboard_texname)};
-NJS_TEXINFO info;
-NJS_TEXMEMLIST tex;
-bool checker_created;
