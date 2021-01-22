@@ -70,6 +70,7 @@ void DLCObject_Action(task* a1)
 	DLCObjectData* data;
 	taskwk* v1;
 	v1 = a1->twp;
+	const char** messages = (const char**)v1->value.ptr;
 	data = &meta.items[v1->id];
 	if (v1->wtimer > 0 || data->flags & FLAG_COLLISION_ONLY) return; //Don't continue if old action is still taking place or of the object is collision only
 	if (data->flags & FLAG_COLLECTIBLE && !timer.enable) return;
@@ -82,6 +83,11 @@ void DLCObject_Action(task* a1)
 	}
 	if (data->flags & FLAG_MESSAGE)
 	{
+		if (messages == NULL)
+		{
+			PrintDebug("Object at %f %f %f has no message data", meta.items[a1->twp->id].x, meta.items[a1->twp->id].y, meta.items[a1->twp->id].z);
+			return;
+		}
 		//Found all
 		if (data->flags & FLAG_COLLECTIBLE && timer.target_current >= timer.target_total)
 		{
@@ -98,7 +104,7 @@ void DLCObject_Action(task* a1)
 				timer.enable = false;
 				data->collected = true;
 				v1->mode = ACTION_DISAPPEAR;
-				CreateHintMessage(CreateSubtitleText, (const char**)a1->twp->value.ptr, 120);
+				CreateHintMessage(CreateSubtitleText, messages, 120);
 			}
 			//Time over
 			else if (timer.time_current > timer.time_target * 3600)
@@ -111,7 +117,7 @@ void DLCObject_Action(task* a1)
 		else
 		{
 			HintDuration = 120;
-			CreateHintMessage(CreateSubtitleText, (const char**)a1->twp->value.ptr, 120);
+			CreateHintMessage(CreateSubtitleText, messages, 120);
 		}
 	}
 	//CHALLENGE and TIMER are mutually exclusive
@@ -316,6 +322,7 @@ void DLCObject_Main(task* a1)
 		{
 			//PrintDebug("Wrong level\n");
 			a1->dest(a1);
+			return;
 		}
 	}
 	
