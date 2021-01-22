@@ -1,12 +1,12 @@
-# SADX Dreamcast DLCs mod by PkR
+# SADX Dreamcast DLC mod by PkR
 
 This is a mod that recreates Dreamcast Sonic Adventure events and challenges in the PC version of Sonic Adventure DX.
 
-To install Dreamcast DLCs you can use SADX Mod Installer that sets up SADX Mod Loader and downloads the latest versions of mods automatically. The installer can also convert the Steam version of SADX to the 2004 version, which supports the Mod Loader. 
+To install Dreamcast DLC you can use SADX Mod Installer that sets up SADX Mod Loader and downloads the latest versions of mods automatically. The installer can also convert the Steam version of SADX to the 2004 version, which supports the Mod Loader. 
 
 **SADX Mod Installer:** https://sadxmodinstaller.unreliable.network
 
-Alternatively you could install Dreamcast DLCs manually by downloading the latest AppVeyor development build from the link below.
+Alternatively you could install Dreamcast DLC manually by downloading the latest AppVeyor development build from the link below.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/jxovcm95nyytvygo?svg=true)](https://ci.appveyor.com/project/PiKeyAr/sadx-dreamcast-dlc)
 
